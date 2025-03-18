@@ -19,7 +19,6 @@ public class Controller {
 
     public Controller() {
         Gson gson = new GsonBuilder()
-                .setLenient()
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -30,52 +29,50 @@ public class Controller {
         this.routeMoodServerApi = retrofit.create(RouteMoodServerApi.class);
     }
 
-    public void getFictiveRoute() {
+    public void getFictiveRoute(ApiCallback<List<RouteItem>> callback) {
         Call<List<RouteItem>> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk");
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(Double longitude, Double latitude, String request) {
+    public void getRoute(Double longitude, Double latitude, String request, ApiCallback<List<RouteItem>> callback) {
         Call<List<RouteItem>> call = routeMoodServerApi.getRoute(longitude, latitude, request);
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(GptRequest request) {
+    public void getRoute(GptRequest request, ApiCallback<List<RouteItem>> callback) {
         Call<List<RouteItem>> call = routeMoodServerApi.getRoute(request);
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    public void registerUser(RegisterRequest registerRequest) {
+    public void registerUser(RegisterRequest registerRequest, ApiCallback<AuthResponse> callback) {
         Call<AuthResponse> call = routeMoodServerApi.registerUser(registerRequest);
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    public void loginUser(AuthRequest authRequest) {
+    public void loginUser(AuthRequest authRequest, ApiCallback<AuthResponse> callback) {
         Call<AuthResponse> call = routeMoodServerApi.loginUser(authRequest);
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    public void listUsers() {
+    public void listUsers(ApiCallback<List<User>> callback) {
         Call<List<User>> call = routeMoodServerApi.listUsers();
-        call.enqueue(getCallbackClass());
+        call.enqueue(createCallback(callback));
     }
 
-    private <T> Callback<T> getCallbackClass() {
+    private <T> Callback<T> createCallback(ApiCallback<T> callback) {
         return new Callback<>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
                 if (response.isSuccessful()) {
-                    T body = response.body();
-                    System.out.println(body);
-                    // TODO give the data out.
+                    callback.onSuccess(response.body());
                 } else {
-                    System.out.println(response.errorBody());
+                    callback.onError("Error " + response.code() + ": " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<T> call, Throwable t) {
-                t.printStackTrace();
+                callback.onError(t.getMessage());
             }
         };
     }
