@@ -1,14 +1,29 @@
 package ru.hse.routemood.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.StringJoiner;
 
+@Getter
+@AllArgsConstructor
 public class Route {
 
-    private @Getter List<RouteItem> route;
+    private List<RouteItem> route;
 
-    public class RouteItem {
+    @Override
+    public String toString() {
+        StringJoiner result = new StringJoiner("\n");
+        for (RouteItem it : route) {
+            result.add(it.toString());
+        }
+        return result.toString();
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class RouteItem {
 
         private double latitude;
         private double longitude;

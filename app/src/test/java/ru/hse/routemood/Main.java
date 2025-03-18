@@ -11,7 +11,7 @@ public class Main {
 
         controller.getFictiveRoute(new ApiCallback<>() {
             @Override
-            public void onSuccess(List<Route.RouteItem> result) {
+            public void onSuccess(Route result) {
                 System.out.println(result);
             }
 
@@ -22,7 +22,7 @@ public class Main {
         });
         controller.getRoute(59.92951508111041, 30.41197525476372, "Funny walk", new ApiCallback<>() {
             @Override
-            public void onSuccess(List<Route.RouteItem> result) {
+            public void onSuccess(Route result) {
                 System.out.println(result);
             }
 
@@ -34,7 +34,7 @@ public class Main {
         controller.getRoute(new GptRequest(0L, "Funny walk", 59.92951508111041, 30.41197525476372),
                 new ApiCallback<>() {
                     @Override
-                    public void onSuccess(List<Route.RouteItem> result) {
+                    public void onSuccess(Route result) {
                         System.out.println(result);
                     }
 

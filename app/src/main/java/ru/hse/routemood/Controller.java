@@ -8,7 +8,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.hse.routemood.models.*;
-import ru.hse.routemood.models.Route.RouteItem;
 
 import java.util.List;
 
@@ -29,18 +28,18 @@ public class Controller {
         this.routeMoodServerApi = retrofit.create(RouteMoodServerApi.class);
     }
 
-    public void getFictiveRoute(ApiCallback<List<RouteItem>> callback) {
-        Call<List<RouteItem>> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk");
+    public void getFictiveRoute(ApiCallback<Route> callback) {
+        Call<Route> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk");
         call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(Double longitude, Double latitude, String request, ApiCallback<List<RouteItem>> callback) {
-        Call<List<RouteItem>> call = routeMoodServerApi.getRoute(longitude, latitude, request);
+    public void getRoute(Double longitude, Double latitude, String request, ApiCallback<Route> callback) {
+        Call<Route> call = routeMoodServerApi.getRoute(longitude, latitude, request);
         call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(GptRequest request, ApiCallback<List<RouteItem>> callback) {
-        Call<List<RouteItem>> call = routeMoodServerApi.getRoute(request);
+    public void getRoute(GptRequest request, ApiCallback<Route> callback) {
+        Call<Route> call = routeMoodServerApi.getRoute(request);
         call.enqueue(createCallback(callback));
     }
 
