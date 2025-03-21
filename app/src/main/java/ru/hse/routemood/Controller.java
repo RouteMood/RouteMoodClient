@@ -1,45 +1,53 @@
 package ru.hse.routemood;
 
+import static ru.hse.routemood.RouteMoodServerApi.BASE_URL;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import ru.hse.routemood.models.*;
-
-import java.util.List;
-
-import static ru.hse.routemood.RouteMoodServerApi.BASE_URL;
+import ru.hse.routemood.models.AuthRequest;
+import ru.hse.routemood.models.AuthResponse;
+import ru.hse.routemood.models.GptRequest;
+import ru.hse.routemood.models.RegisterRequest;
+import ru.hse.routemood.models.Route;
+import ru.hse.routemood.models.User;
 
 public class Controller {
+
     private final RouteMoodServerApi routeMoodServerApi;
 
     public Controller() {
         Gson gson = new GsonBuilder()
-                .create();
+            .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build();
 
         this.routeMoodServerApi = retrofit.create(RouteMoodServerApi.class);
     }
 
-    public void getFictiveRoute(ApiCallback<Route> callback) {
-        Call<Route> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk");
+    public void getFictiveRoute(ApiCallback<Route> callback, String token) {
+        Call<Route> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk",
+            "Bearer " + token);
         call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(Double longitude, Double latitude, String request, ApiCallback<Route> callback) {
-        Call<Route> call = routeMoodServerApi.getRoute(longitude, latitude, request);
+    public void getRoute(Double longitude, Double latitude, String request,
+        ApiCallback<Route> callback, String token) {
+        Call<Route> call = routeMoodServerApi.getRoute(longitude, latitude, request,
+            "Bearer " + token);
         call.enqueue(createCallback(callback));
     }
 
-    public void getRoute(GptRequest request, ApiCallback<Route> callback) {
-        Call<Route> call = routeMoodServerApi.getRoute(request);
+    public void getRoute(GptRequest request, ApiCallback<Route> callback, String token) {
+        Call<Route> call = routeMoodServerApi.getRoute(request, "Bearer " + token);
         call.enqueue(createCallback(callback));
     }
 
@@ -53,8 +61,8 @@ public class Controller {
         call.enqueue(createCallback(callback));
     }
 
-    public void listUsers(ApiCallback<List<User>> callback) {
-        Call<List<User>> call = routeMoodServerApi.listUsers();
+    public void listUsers(ApiCallback<List<User>> callback, String token) {
+        Call<List<User>> call = routeMoodServerApi.listUsers("Bearer " + token);
         call.enqueue(createCallback(callback));
     }
 
