@@ -1,6 +1,11 @@
 package ru.hse.routemood.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -9,6 +14,7 @@ import lombok.*;
 @Builder
 @Data
 public class AuthRequest {
+
     private String username;
     private String password;
 }
