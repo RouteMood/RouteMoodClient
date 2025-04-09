@@ -1,12 +1,14 @@
 package ru.hse.routemood;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
-import retrofit2.Response;
 import ru.hse.routemood.models.AuthRequest;
+import ru.hse.routemood.models.AuthResponse;
 import ru.hse.routemood.models.RegisterRequest;
 import ru.hse.routemood.models.Route;
+import ru.hse.routemood.models.User;
 
 public class TestMain {
 
@@ -14,26 +16,88 @@ public class TestMain {
 
     @Test
     public void registerAndLogin() {
-        Response<Boolean> registerResponse = controller.registerUser(
-            new RegisterRequest("testUser", "testUser", "passwd"));
-        assertTrue(registerResponse.isSuccessful());
+        controller.registerUser(
+            new RegisterRequest("testUser", "testUser", "passwd"), new ApiCallback<>() {
+                @Override
+                public void onSuccess(AuthResponse result) {
+                    controller.loginUser(
+                        new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
+                            @Override
+                            public void onSuccess(AuthResponse result) {
+                                System.out.println(result);
+                            }
 
-        Response<Boolean> loginResponse = controller.loginUser(
-            new AuthRequest("testUser", "passwd"));
-        assertTrue(loginResponse.isSuccessful());
+                            @Override
+                            public void onError(String error) {
+                                System.err.println(error);
+                                fail();
+                            }
+                        });
+                }
+
+                @Override
+                public void onError(String error) {
+                    System.err.println(error);
+                    fail();
+                }
+            });
     }
 
     @Test
-    public void fictiveRoute() {
-        controller.loginUser(new AuthRequest("testUser", "passwd"));
-        Response<Route> response = controller.getFictiveRoute();
+    public void fictiveRoute() throws InterruptedException {
+        controller.loginUser(
+            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
+                @Override
+                public void onSuccess(AuthResponse authResponse) {
+                    controller.getFictiveRoute(new ApiCallback<>() {
+                        @Override
+                        public void onSuccess(Route route) {
+                            System.out.println(route);
+                        }
 
-        assertTrue(response.isSuccessful());
+                        @Override
+                        public void onError(String error) {
+                            System.err.println(error);
+                            fail();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    System.err.println(error);
+                    fail();
+                }
+            });
+        Thread.sleep(500);
     }
 
     @Test
-    public void listUsers() {
-        controller.loginUser(new AuthRequest("testUser", "passwd"));
-        assertTrue(controller.listUsers().isSuccessful());
+    public void listUsers() throws InterruptedException {
+        controller.loginUser(
+            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
+                @Override
+                public void onSuccess(AuthResponse result) {
+                    controller.listUsers(new ApiCallback<>() {
+                        @Override
+                        public void onSuccess(List<User> result) {
+                            System.out.println(result);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            System.err.println(error);
+                            fail();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    System.err.println(error);
+                    fail();
+                }
+            });
+        Thread.sleep(500);
     }
 }
