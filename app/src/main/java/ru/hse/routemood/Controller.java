@@ -5,8 +5,8 @@ import static ru.hse.routemood.RouteMoodServerApi.BASE_URL;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.List;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.Retrofit.Builder;
@@ -36,62 +36,67 @@ public class Controller {
         this.routeMoodServerApi = retrofit.create(RouteMoodServerApi.class);
     }
 
-    public Response<Route> getFictiveRoute() {
-        Call<Route> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk",
-            "Bearer " + sessionManager.getToken());
-        try {
-            return call.execute();
-        } catch (Exception e) {
-            return Response.error(500, ResponseBody.create(null, e.getMessage()));
-        }
-    }
-
-    public Response<Route> getRoute(GptRequest request) {
-        Call<Route> call = routeMoodServerApi.getRoute(request,
-            "Bearer " + sessionManager.getToken());
-        try {
-            return call.execute();
-        } catch (Exception e) {
-            return Response.error(500, ResponseBody.create(null, e.getMessage()));
-        }
-    }
-
-    private Response<Boolean> executeCall(Call<AuthResponse> call) {
-        Response<AuthResponse> response;
-        try {
-            response = call.execute();
-            if (response.isSuccessful() && response.body() != null) {
-                sessionManager.setToken(response.body().getToken());
-                return Response.success(true);
-            } else {
-                try (ResponseBody errorBody = response.errorBody()) {
-                    return Response.error(
-                        response.code(),
-                        errorBody != null ? errorBody : ResponseBody.create(null, "Unknown error")
-                    );
+    private <T> Callback<T> createDefaulteCallback(ApiCallback<T> callback) {
+        return new Callback<>() {
+            @Override
+            public void onResponse(Call<T> call, Response<T> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Error " + response.code() + ": " + response.message());
                 }
             }
-        } catch (Exception e) {
-            return Response.error(500, ResponseBody.create(null, e.getMessage()));
-        }
+
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        };
     }
 
-    public Response<Boolean> registerUser(RegisterRequest registerRequest) {
+    private Callback<AuthResponse> createAuthCallback(ApiCallback<AuthResponse> callback) {
+        return new Callback<>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (response.isSuccessful()) {
+                    sessionManager.setToken(response.body().getToken());
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Error " + response.code() + ": " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        };
+    }
+
+    public void getFictiveRoute(ApiCallback<Route> callback) {
+        Call<Route> call = routeMoodServerApi.getFictiveRoute(0.0, 0.0, "Default walk",
+            "Bearer " + sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void getRoute(GptRequest request, ApiCallback<Route> callback) {
+        Call<Route> call = routeMoodServerApi.getRoute(request,
+            "Bearer " + sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void registerUser(RegisterRequest registerRequest, ApiCallback<AuthResponse> callback) {
         Call<AuthResponse> call = routeMoodServerApi.registerUser(registerRequest);
-        return executeCall(call);
+        call.enqueue(createAuthCallback(callback));
     }
 
-    public Response<Boolean> loginUser(AuthRequest authRequest) {
+    public void loginUser(AuthRequest authRequest, ApiCallback<AuthResponse> callback) {
         Call<AuthResponse> call = routeMoodServerApi.loginUser(authRequest);
-        return executeCall(call);
+        call.enqueue(createAuthCallback(callback));
     }
 
-    public Response<List<User>> listUsers() {
+    public void listUsers(ApiCallback<List<User>> callback) {
         Call<List<User>> call = routeMoodServerApi.listUsers("Bearer " + sessionManager.getToken());
-        try {
-            return call.execute();
-        } catch (Exception e) {
-            return Response.error(500, ResponseBody.create(null, e.getMessage()));
-        }
+        call.enqueue(createDefaulteCallback(callback));
     }
 }
