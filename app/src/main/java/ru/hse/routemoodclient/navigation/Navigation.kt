@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -16,11 +17,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.AndroidEntryPoint
 import ru.hse.routemoodclient.R
 import ru.hse.routemoodclient.map.ShowMap
 import ru.hse.routemoodclient.screens.LoginScreen
+import ru.hse.routemoodclient.screens.RegisterScreen
 import ru.hse.routemoodclient.screens.RouteSettings
 import ru.hse.routemoodclient.ui.RouteViewModel
+import ru.hse.routemoodclient.ui.ServerViewModel
 import ru.hse.routemoodclient.ui.theme.LightGreen
 
 /**
@@ -47,6 +51,10 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
         title = R.string.authorization,
         color = LightGreen
     ),
+    Register(
+        title = R.string.registration,
+        color = LightGreen
+    ),
     RouteSettings(
         title = R.string.route_settings,
         color = LightGreen
@@ -55,7 +63,8 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
 
 @Composable
 fun RouteMoodApp(
-    viewModel: RouteViewModel = viewModel(),
+    serverViewModel: ServerViewModel = hiltViewModel(),
+    viewModel: RouteViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     // Get current back stack entry
@@ -65,22 +74,21 @@ fun RouteMoodApp(
         backStackEntry?.destination?.route ?: RouteMoodScreen.Start.name
     )
 
-    Scaffold(
-        topBar = {
-            RouteMoodTopBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+    ProfileSheet(
+        currentScreen = currentScreen,
+        canNavigateBack = navController.previousBackStackEntry != null,
+        navigateUp = { navController.navigateUp() },
+        toMapScreen = {
+            navController.navigate(RouteMoodScreen.Map.name) {
+                launchSingleTop = true
+            }
         },
-        bottomBar = {
-            RouteMoodBottomBar (
-                currentScreen = currentScreen,
-                toMapScreen = { navController.navigate(RouteMoodScreen.Map.name) },
-                toRouteSettings = { navController.navigate(RouteMoodScreen.RouteSettings.name) },
-                toNetScreen = {}
-            )
-        }
+        toRouteSettings = {
+            navController.navigate(RouteMoodScreen.RouteSettings.name) {
+                launchSingleTop = true
+            }
+        },
+        toNetScreen = {}
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -91,7 +99,21 @@ fun RouteMoodApp(
         ) {
             composable(route = RouteMoodScreen.Start.name) {
                 LoginScreen (
+                    serverViewModel = serverViewModel,
                     onLoginButtonClicked = {
+                        serverViewModel.askLoginUser()
+                        navController.navigate(RouteMoodScreen.RouteSettings.name)
+                    },
+                    onRegisterButtonClicked = {
+                        navController.navigate(RouteMoodScreen.Register.name)
+                    }
+                )
+            }
+            composable(route = RouteMoodScreen.Register.name) {
+                RegisterScreen (
+                    serverViewModel = serverViewModel,
+                    onRegisterButtonClicked = {
+                        serverViewModel.askRegisterUser()
                         navController.navigate(RouteMoodScreen.RouteSettings.name)
                     }
                 )
@@ -106,6 +128,8 @@ fun RouteMoodApp(
                         navController.navigate(RouteMoodScreen.SetEnd.name)
                     },
                     onGenerateButtonClicked = {
+                        //serverViewModel.askRoute()
+                        serverViewModel.askFictiveRoute()
                         navController.navigate(RouteMoodScreen.Map.name)
                     },
                     onDiscardButtonClicked = {

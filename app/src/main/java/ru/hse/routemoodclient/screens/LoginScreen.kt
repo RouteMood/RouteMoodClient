@@ -9,6 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,15 +24,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.hse.routemoodclient.R
+import ru.hse.routemoodclient.ui.ServerViewModel
+import ru.hse.routemoodclient.ui.components.WhiteButton
 import ru.hse.routemoodclient.ui.theme.LightGreen
 
 @Composable
 fun LoginScreen(
-    onLoginButtonClicked: () -> Unit
+    serverViewModel: ServerViewModel = viewModel(),
+    onLoginButtonClicked: () -> Unit,
+    onRegisterButtonClicked: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val userState by serverViewModel.userState.collectAsState()
     Image(
         painter = ColorPainter(LightGreen),
         modifier = Modifier,
@@ -52,18 +57,23 @@ fun LoginScreen(
             fontSize = 25.sp
         )
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = userState.username,
+            onValueChange = { serverViewModel.saveUsername(it) },
             label = { Text("Username") }
         )
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = userState.password,
+            onValueChange = { serverViewModel.saveUserPassword(it) },
             label = { Text("Password") }
         )
-        Button(onClick = onLoginButtonClicked) {
-            Text("Login", fontSize = 22.sp)
-        }
+        WhiteButton(
+            onClick = onLoginButtonClicked,
+            buttonText = "Login"
+        )
+        WhiteButton(
+            onClick = onRegisterButtonClicked,
+            buttonText = "New account"
+        )
     }
 }
 
@@ -72,6 +82,7 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     LoginScreen(
-        onLoginButtonClicked = {}
+        onLoginButtonClicked = {},
+        onRegisterButtonClicked = {}
     )
 }

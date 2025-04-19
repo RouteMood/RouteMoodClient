@@ -1,5 +1,6 @@
 package ru.hse.routemoodclient.navigation
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +28,7 @@ fun RouteMoodTopBar(
     currentScreen: RouteMoodScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    actions: @Composable() (RowScope.() -> Unit),
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -44,7 +46,8 @@ fun RouteMoodTopBar(
                     )
                 }
             }
-        }
+        },
+        actions = actions
     )
 }
 
@@ -54,7 +57,8 @@ fun RouteMoodTopBarPreview() {
     RouteMoodTopBar(
         currentScreen = RouteMoodScreen.RouteSettings,
         canNavigateBack = true,
-        navigateUp = {}
+        navigateUp = {},
+        actions = {}
     )
 }
 

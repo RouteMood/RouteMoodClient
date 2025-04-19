@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.hse.routemood.TestMain" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-04-10T07:13:43" hostname="DESKTOP-82VFFRB" time="1.168">
+  <properties/>
+  <testcase name="listUsers()" classname="ru.hse.routemood.TestMain" time="0.634"/>
+  <testcase name="registerAndLogin()" classname="ru.hse.routemood.TestMain" time="0.014"/>
+  <testcase name="fictiveRoute()" classname="ru.hse.routemood.TestMain" time="0.505"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
