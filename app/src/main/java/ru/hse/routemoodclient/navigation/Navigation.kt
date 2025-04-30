@@ -3,23 +3,20 @@ package ru.hse.routemoodclient.navigation
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.LatLng
-import dagger.hilt.android.AndroidEntryPoint
 import ru.hse.routemoodclient.R
 import ru.hse.routemoodclient.map.ShowMap
+import ru.hse.routemoodclient.profile.ProfileSheet
 import ru.hse.routemoodclient.screens.LoginScreen
 import ru.hse.routemoodclient.screens.RegisterScreen
 import ru.hse.routemoodclient.screens.RouteSettings
@@ -64,7 +61,7 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
 @Composable
 fun RouteMoodApp(
     serverViewModel: ServerViewModel = hiltViewModel(),
-    viewModel: RouteViewModel = hiltViewModel(),
+    routeViewModel: RouteViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     // Get current back stack entry
@@ -88,7 +85,9 @@ fun RouteMoodApp(
                 launchSingleTop = true
             }
         },
-        toNetScreen = {}
+        toNetScreen = {},
+        serverViewModel = serverViewModel,
+        routeViewModel = routeViewModel
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -120,7 +119,7 @@ fun RouteMoodApp(
             }
             composable(route = RouteMoodScreen.RouteSettings.name) {
                 RouteSettings (
-                    viewModel = viewModel,
+                    routeViewModel = routeViewModel,
                     setRouteStart = {
                         navController.navigate(RouteMoodScreen.SetStart.name)
                     },
@@ -133,46 +132,34 @@ fun RouteMoodApp(
                         navController.navigate(RouteMoodScreen.Map.name)
                     },
                     onDiscardButtonClicked = {
-                        viewModel.resetRoute()
+                        routeViewModel.resetRoute()
                     }
                 )
             }
             composable(route = RouteMoodScreen.Map.name) {
                 ShowMap(
-                    viewModel = viewModel,
+                    viewModel = routeViewModel,
                     onMapClick = {}
                 )
             }
             composable(route = RouteMoodScreen.SetStart.name) {
                 ShowMap(
-                    viewModel = viewModel,
+                    viewModel = routeViewModel,
                     onMapClick = {
                             latLng: LatLng ->
-                        viewModel.setStart(latLng.latitude, latLng.longitude)
+                        routeViewModel.setStart(latLng.latitude, latLng.longitude)
                     }
                 )
             }
             composable(route = RouteMoodScreen.SetEnd.name) {
                 ShowMap(
-                    viewModel = viewModel,
+                    viewModel = routeViewModel,
                     onMapClick = {
                             latLng: LatLng ->
-                        viewModel.setEnd(latLng.latitude, latLng.longitude)
+                        routeViewModel.setEnd(latLng.latitude, latLng.longitude)
                     }
                 )
             }
         }
     }
-}
-
-
-/**
- * Resets the [RouteUiState] and pops up to [RouteMoodScreen.Start]
- */
-private fun cancelOrderAndNavigateToStart(
-    viewModel: RouteViewModel,
-    navController: NavHostController
-) {
-    viewModel.resetRoute()
-    navController.popBackStack(RouteMoodScreen.Start.name, inclusive = false)
 }

@@ -1,14 +1,19 @@
 package ru.hse.routemoodclient.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import ru.hse.routemoodclient.data.DataRepository
+import ru.hse.routemoodclient.data.RouteEntity
 import ru.hse.routemoodclient.data.RouteUiState
+import ru.hse.routemoodclient.data.toRouteEntity
+import ru.hse.routemoodclient.data.toRouteUiState
 import javax.inject.Inject
 
 /**
@@ -22,6 +27,45 @@ class RouteViewModel @Inject constructor(
      * Route state
      */
     val routeState: StateFlow<RouteUiState> = dataRepository.routeState
+    val routesList: StateFlow<List<RouteEntity>> = dataRepository.getRouteList()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun saveRoute() {
+        val routeEntity: RouteEntity = routeState.value.toRouteEntity()
+        viewModelScope.launch {
+            dataRepository.insertRoute(routeEntity)
+        }
+    }
+
+    fun setUiRouteById (index : Int) {
+        viewModelScope.launch {
+            val routeEntity: RouteEntity = dataRepository.getRouteById(index).first()
+            dataRepository.updateRouteState(routeEntity.toRouteUiState())
+        }
+    }
+
+    fun deleteRoute(index : Int) {
+        viewModelScope.launch {
+            val routeEntity: RouteEntity = dataRepository.getRouteById(index).first()
+            dataRepository.deleteRoute(routeEntity)
+        }
+    }
+
+    fun deleteAllRoutes() {
+        viewModelScope.launch {
+            dataRepository.nukeTable()
+        }
+    }
+
+    /**
+     * Set the route's name.
+     */
+    fun setName(name: String) {
+        val updatedRouteState = routeState.value.copy(
+            name = name
+        )
+        dataRepository.updateRouteState(updatedRouteState)
+    }
 
     /**
      * Set the start [latitude] and [longitude] for this route's state.

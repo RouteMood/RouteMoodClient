@@ -1,13 +1,9 @@
 package ru.hse.routemoodclient.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import ru.hse.routemood.ApiCallback
 import ru.hse.routemood.Controller
 import ru.hse.routemood.models.AuthRequest
@@ -149,7 +145,7 @@ class ServerViewModel @Inject constructor(
                 try {
                     controller.getRoute(
                         GptRequest(
-                            "Default walk",
+                            routeState.value.routeRequest,
                             routeState.value.start.longitude,
                             routeState.value.start.latitude
                         ), getRouteResponse

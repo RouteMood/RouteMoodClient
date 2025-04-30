@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.devtools.ksp") version "2.0.0-1.0.22"
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
@@ -59,19 +60,26 @@ android {
 }
 
 dependencies {
+    // Gson
+    implementation ("com.google.code.gson:gson:2.12.1")
+    //Room
+    implementation("androidx.room:room-runtime:2.7.0")
+    ksp("androidx.room:room-compiler:2.7.0")
+    implementation("androidx.room:room-ktx:2.7.0")
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     implementation("androidx.hilt:hilt-navigation-fragment:1.2.0")
-
+    // Coroutines
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    // Server module
     implementation(project(":serverInteractor"))
     // Retrofit
     // implementation(libs.retrofit)
     // Retrofit with Scalar Converter
     implementation(libs.converter.scalars)
-
+    // Google maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
