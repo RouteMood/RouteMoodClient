@@ -1,4 +1,4 @@
-package ru.hse.routemood.models;
+package ru.hse.routemood.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,14 +7,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
-@Data
-public class AuthRequest {
+public class GptRequest {
 
-    private String username;
-    private String password;
+    private String request;
+    private Double longitude;
+    private Double latitude;
 }

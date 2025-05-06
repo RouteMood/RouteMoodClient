@@ -1,4 +1,4 @@
-package ru.hse.routemood.models;
+package ru.hse.routemood.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
