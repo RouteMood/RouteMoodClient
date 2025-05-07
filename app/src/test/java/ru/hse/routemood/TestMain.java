@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
@@ -24,88 +25,22 @@ public class TestMain {
     @Test
     public void registerAndLogin() {
         controller.registerUser(
-            new RegisterRequest("testUser", "testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.loginUser(
-                        new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                            @Override
-                            public void onSuccess(AuthResponse result) {
-                                System.out.println(result);
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                System.err.println(error);
-                                fail();
-                            }
-                        });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
+            new RegisterRequest("testUser", "testUser", "passwd"),
+            (TestApiCallback<AuthResponse>) result -> controller.loginUser(
+                new AuthRequest("testUser", "passwd"),
+                (TestApiCallback<AuthResponse>) System.out::println));
     }
 
     @Test
     public void fictiveRoute() throws InterruptedException {
-        controller.loginUser(
-            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse authResponse) {
-                    controller.getFictiveRoute(new ApiCallback<>() {
-                        @Override
-                        public void onSuccess(Route route) {
-                            System.out.println(route);
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            System.err.println(error);
-                            fail();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
-        Thread.sleep(500);
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getFictiveRoute(
+            (TestApiCallback<Route>) System.out::println));
     }
 
     @Test
     public void listUsers() throws InterruptedException {
-        controller.loginUser(
-            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.listUsers(new ApiCallback<>() {
-                        @Override
-                        public void onSuccess(List<User> result) {
-                            System.out.println(result);
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            System.err.println(error);
-                            fail();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
-        Thread.sleep(500);
+        loginDefaultTestUserAndRunOnSuccess(response -> controller.listUsers(
+            (TestApiCallback<List<User>>) System.out::println));
     }
 
     @Test
@@ -122,154 +57,69 @@ public class TestMain {
 
         String username = "testUser";
 
-        controller.loginUser(
-            new AuthRequest(username, "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.saveRoute(new RatingRequest(username, route), new ApiCallback<>() {
-                        @Override
-                        public void onSuccess(RatingItem result) {
+        loginDefaultTestUserAndRunOnSuccess((authResponse ->
+            controller.saveRoute(new RatingRequest(username, route),
+                (TestApiCallback<RatingItem>) result1 -> {
+                    System.out.println(
+                        "RatingItem: id = " + result1.getId() + "; rating = " + result1.getRating()
+                            + "; route = " + result1.getRoute() + "; authorUsername = "
+                            + result1.getAuthorUsername());
+
+                    controller.addRate(new RateRequest(result1.getId(), username, 5),
+                        (TestApiCallback<RatingResponse>) response -> {
                             System.out.println(
-                                "RatingItem: id = " + result.getId() + "; rating = "
-                                    + result.getRating()
-                                    + "; route = " + result.getRoute() + "; authorUsername = "
-                                    + result.getAuthorUsername());
-
-                            controller.addRate(new RateRequest(result.getId(), username, 5),
-                                new ApiCallback<>() {
-                                    @Override
-                                    public void onSuccess(RatingResponse response) {
-                                        System.out.println(
-                                            "After first rate: rating = " + response.getRating());
-                                        controller.addRate(
-                                            new RateRequest(result.getId(), username, 4),
-                                            new ApiCallback<>() {
-                                                @Override
-                                                public void onSuccess(RatingResponse response) {
-                                                    System.out.println(
-                                                        "After second rate: rating = "
-                                                            + response.getRating());
-                                                }
-
-                                                @Override
-                                                public void onError(String error) {
-
-                                                }
-                                            });
-                                    }
-
-                                    @Override
-                                    public void onError(String error) {
-
-                                    }
-                                });
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            System.err.println(error);
-                            fail();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
-        Thread.sleep(500);
+                                "After first rate: rating = " + response.getRating());
+                            controller.addRate(
+                                new RateRequest(result1.getId(), username, 4),
+                                (TestApiCallback<RatingResponse>) response1 -> System.out.println(
+                                    "After second rate: rating = " + response1.getRating()));
+                        });
+                })));
     }
 
     @Test
     public void getRatingTable() throws InterruptedException {
-        controller.loginUser(
-            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.listRoutes(new ApiCallback<>() {
-                        @Override
-                        public void onSuccess(List<RatingResponse> result) {
-                            System.out.println(result);
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            System.err.println(error);
-                            fail();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
-        Thread.sleep(500);
+        loginDefaultTestUserAndRunOnSuccess((authResponse) ->
+            controller.listRoutes((TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesByAuthorUsername() throws InterruptedException {
-        controller.loginUser(
-            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.getListRatedRoutesByAuthorUsername("testUser", new ApiCallback<>() {
-                        @Override
-                        public void onSuccess(List<RatingResponse> result) {
-                            System.out.println(result);
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            System.err.println(error);
-                            fail();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
-        Thread.sleep(500);
+        loginDefaultTestUserAndRunOnSuccess(
+            (authResponse) -> controller.getListRatedRoutesByAuthorUsername("testUser",
+                (TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesById() throws InterruptedException {
-        controller.loginUser(
-            new AuthRequest("testUser", "passwd"), new ApiCallback<>() {
-                @Override
-                public void onSuccess(AuthResponse result) {
-                    controller.getRatedRouteById(
-                        UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
-                        new ApiCallback<>() {
-                            @Override
-                            public void onSuccess(RatingResponse result) {
-                                System.out.println(result);
-                            }
+        loginDefaultTestUserAndRunOnSuccess((authResponse) -> controller.getRatedRouteById(
+            UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
+            (TestApiCallback<RatingResponse>) System.out::println));
+    }
 
-                            @Override
-                            public void onError(String error) {
-                                System.err.println(error);
-                                fail();
-                            }
-                        });
-                }
+    private void loginDefaultTestUserAndRunOnSuccess(Consumer<AuthResponse> task)
+        throws InterruptedException {
+        loginUserAndRunOnSuccess("testUser", "passwd", task);
+    }
 
-                @Override
-                public void onError(String error) {
-                    System.err.println(error);
-                    fail();
-                }
-            });
+    private void loginUserAndRunOnSuccess(String username, String password,
+        Consumer<AuthResponse> task)
+        throws InterruptedException {
+        controller.loginUser(new AuthRequest(username, password),
+            (TestApiCallback<AuthResponse>) task::accept);
         Thread.sleep(500);
     }
 
+    private interface TestApiCallback<T> extends ApiCallback<T> {
+
+        @Override
+        void onSuccess(T result);
+
+        @Override
+        default void onError(String error) {
+            System.err.println(error);
+            fail();
+        }
+    }
 
 }
