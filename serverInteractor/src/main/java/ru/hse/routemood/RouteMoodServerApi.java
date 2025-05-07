@@ -16,7 +16,6 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -50,7 +49,7 @@ public interface RouteMoodServerApi {
     Call<List<User>> listUsers(@Header("Authorization") String authHeader);
 
     @POST("/rating/save")
-    Call<RatingItem> saveRoute(@Body RatingRequest request,
+    Call<RatingResponse> saveRoute(@Body RatingRequest request,
         @Header("Authorization") String authHeader);
 
     @PATCH("/rating/add-rate")

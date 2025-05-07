@@ -19,7 +19,6 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -31,6 +30,8 @@ public class Controller {
     public Controller() {
         sessionManager = SessionManager.getInstance();
         Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
+            .registerTypeAdapter(double.class, new DoubleTypeAdapter())
             .create();
 
         Retrofit retrofit = new Builder()
@@ -104,8 +105,9 @@ public class Controller {
         call.enqueue(createDefaulteCallback(callback));
     }
 
-    public void saveRoute(RatingRequest request, ApiCallback<RatingItem> callback) {
-        Call<RatingItem> call = routeMoodServerApi.saveRoute(request, sessionManager.getToken());
+    public void saveRoute(RatingRequest request, ApiCallback<RatingResponse> callback) {
+        Call<RatingResponse> call = routeMoodServerApi.saveRoute(request,
+            sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 
