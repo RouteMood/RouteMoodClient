@@ -1,32 +1,38 @@
 package ru.hse.routemood;
 
 import java.util.List;
+import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-import ru.hse.routemood.models.AuthRequest;
-import ru.hse.routemood.models.AuthResponse;
-import ru.hse.routemood.models.GptRequest;
-import ru.hse.routemood.models.RegisterRequest;
+import ru.hse.routemood.dto.AuthRequest;
+import ru.hse.routemood.dto.AuthResponse;
+import ru.hse.routemood.dto.GptRequest;
+import ru.hse.routemood.dto.RateRequest;
+import ru.hse.routemood.dto.RatingRequest;
+import ru.hse.routemood.dto.RatingResponse;
+import ru.hse.routemood.dto.RegisterRequest;
+import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
 public interface RouteMoodServerApi {
 
-    String BASE_URL = "http://172.28.145.19:8080";
+    String BASE_URL = "http://localhost:8080/";
 
     @GET("/gpt-fictive-message")
-    Call<Route> getFictiveRoute(@Query("longitude") Double longitude,
-        @Query("latitude") Double latitude,
+    Call<Route> getFictiveRoute(@Query("latitude") Double latitude,
+        @Query("longitude") Double longitude,
         @Query("request") String request,
         @Header("Authorization") String authHeader);
 
     @GET("/gpt-request")
-    Call<Route> getRoute(@Query("longitude") Double longitude,
-        @Query("latitude") Double latitude,
+    Call<Route> getRoute(@Query("latitude") Double latitude,
+        @Query("longitude") Double longitude,
         @Query("request") String request,
         @Header("Authorization") String authHeader);
 
@@ -42,4 +48,24 @@ public interface RouteMoodServerApi {
 
     @GET("/api/users")
     Call<List<User>> listUsers(@Header("Authorization") String authHeader);
+
+    @POST("/rating/save")
+    Call<RatingItem> saveRoute(@Body RatingRequest request,
+        @Header("Authorization") String authHeader);
+
+    @PATCH("/rating/add-rate")
+    Call<RatingResponse> addRate(@Body RateRequest request,
+        @Header("Authorization") String authHeader);
+
+    @GET("/rating/get-by-id")
+    Call<RatingResponse> getRouteById(@Query("id") UUID routeId,
+        @Header("Authorization") String authHeader);
+
+    @GET("/rating/get-by-author")
+    Call<List<RatingResponse>> getListRatedRoutesByAuthorUsername(
+        @Query("author") String authorUsername,
+        @Header("Authorization") String authHeader);
+
+    @GET("/rating/get-all")
+    Call<List<RatingResponse>> listRoutes(@Header("Authorization") String authHeader);
 }
