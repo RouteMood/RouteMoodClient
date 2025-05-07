@@ -16,6 +16,8 @@ import ru.hse.routemood.models.Route;
 @NoArgsConstructor
 public class RatingRequest {
 
+    public String name;
+    public String description;
     public String authorUsername;
     public Route route;
 }

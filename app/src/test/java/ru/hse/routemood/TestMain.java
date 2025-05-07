@@ -13,7 +13,6 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.Route.RouteItem;
 import ru.hse.routemood.models.User;
@@ -26,20 +25,20 @@ public class TestMain {
     public void registerAndLogin() {
         controller.registerUser(
             new RegisterRequest("testUser", "testUser", "passwd"),
-            (TestApiCallback<AuthResponse>) _ -> controller.loginUser(
+            (TestApiCallback<AuthResponse>) response -> controller.loginUser(
                 new AuthRequest("testUser", "passwd"),
                 (TestApiCallback<AuthResponse>) System.out::println));
     }
 
     @Test
     public void fictiveRoute() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(_ -> controller.getFictiveRoute(
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getFictiveRoute(
             (TestApiCallback<Route>) System.out::println));
     }
 
     @Test
     public void listUsers() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(_ -> controller.listUsers(
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.listUsers(
             (TestApiCallback<List<User>>) System.out::println));
     }
 
@@ -57,13 +56,10 @@ public class TestMain {
 
         String username = "testUser";
 
-        loginDefaultTestUserAndRunOnSuccess((_ ->
-            controller.saveRoute(new RatingRequest(username, route),
-                (TestApiCallback<RatingItem>) result1 -> {
-                    System.out.println(
-                        "RatingItem: id = " + result1.getId() + "; rating = " + result1.getRating()
-                            + "; route = " + result1.getRoute() + "; authorUsername = "
-                            + result1.getAuthorUsername());
+        loginDefaultTestUserAndRunOnSuccess((authResponse ->
+            controller.saveRoute(new RatingRequest("RouteName", "SomeDescription", username, route),
+                (TestApiCallback<RatingResponse>) result1 -> {
+                    System.out.println(result1);
 
                     controller.addRate(new RateRequest(result1.getId(), username, 5),
                         (TestApiCallback<RatingResponse>) response -> {
@@ -79,20 +75,20 @@ public class TestMain {
 
     @Test
     public void getRatingTable() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(_ ->
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
             controller.listRoutes((TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesByAuthorUsername() throws InterruptedException {
         loginDefaultTestUserAndRunOnSuccess(
-            _ -> controller.getListRatedRoutesByAuthorUsername("testUser",
+            authResponse -> controller.getListRatedRoutesByAuthorUsername("testUser",
                 (TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesById() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(_ -> controller.getRatedRouteById(
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getRatedRouteById(
             UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
             (TestApiCallback<RatingResponse>) System.out::println));
     }
@@ -121,5 +117,4 @@ public class TestMain {
             fail();
         }
     }
-
 }
