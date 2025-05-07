@@ -26,20 +26,20 @@ public class TestMain {
     public void registerAndLogin() {
         controller.registerUser(
             new RegisterRequest("testUser", "testUser", "passwd"),
-            (TestApiCallback<AuthResponse>) result -> controller.loginUser(
+            (TestApiCallback<AuthResponse>) _ -> controller.loginUser(
                 new AuthRequest("testUser", "passwd"),
                 (TestApiCallback<AuthResponse>) System.out::println));
     }
 
     @Test
     public void fictiveRoute() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getFictiveRoute(
+        loginDefaultTestUserAndRunOnSuccess(_ -> controller.getFictiveRoute(
             (TestApiCallback<Route>) System.out::println));
     }
 
     @Test
     public void listUsers() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(response -> controller.listUsers(
+        loginDefaultTestUserAndRunOnSuccess(_ -> controller.listUsers(
             (TestApiCallback<List<User>>) System.out::println));
     }
 
@@ -57,7 +57,7 @@ public class TestMain {
 
         String username = "testUser";
 
-        loginDefaultTestUserAndRunOnSuccess((authResponse ->
+        loginDefaultTestUserAndRunOnSuccess((_ ->
             controller.saveRoute(new RatingRequest(username, route),
                 (TestApiCallback<RatingItem>) result1 -> {
                     System.out.println(
@@ -79,20 +79,20 @@ public class TestMain {
 
     @Test
     public void getRatingTable() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess((authResponse) ->
+        loginDefaultTestUserAndRunOnSuccess(_ ->
             controller.listRoutes((TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesByAuthorUsername() throws InterruptedException {
         loginDefaultTestUserAndRunOnSuccess(
-            (authResponse) -> controller.getListRatedRoutesByAuthorUsername("testUser",
+            _ -> controller.getListRatedRoutesByAuthorUsername("testUser",
                 (TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesById() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess((authResponse) -> controller.getRatedRouteById(
+        loginDefaultTestUserAndRunOnSuccess(_ -> controller.getRatedRouteById(
             UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
             (TestApiCallback<RatingResponse>) System.out::println));
     }
