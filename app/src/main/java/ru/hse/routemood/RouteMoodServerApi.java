@@ -25,14 +25,14 @@ public interface RouteMoodServerApi {
     String BASE_URL = "http://localhost:8080/";
 
     @GET("/gpt-fictive-message")
-    Call<Route> getFictiveRoute(@Query("longitude") Double longitude,
-        @Query("latitude") Double latitude,
+    Call<Route> getFictiveRoute(@Query("latitude") Double latitude,
+        @Query("longitude") Double longitude,
         @Query("request") String request,
         @Header("Authorization") String authHeader);
 
     @GET("/gpt-request")
-    Call<Route> getRoute(@Query("longitude") Double longitude,
-        @Query("latitude") Double latitude,
+    Call<Route> getRoute(@Query("latitude") Double latitude,
+        @Query("longitude") Double longitude,
         @Query("request") String request,
         @Header("Authorization") String authHeader);
 
