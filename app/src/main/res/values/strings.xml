@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">RouteMoodClient</string>
     <string name="map_screen">MapScreen</string>
+    <string name="network_screen">NetworkScreen</string>
     <string name="set_start_marker_screen">StartMarkerScreen</string>
     <string name="set_end_marker_screen">EndMarkerScreen</string>
+    <string name="set_user_route_screen">SetUserRouteScreen</string>
     <string name="route_settings">RouteSettings</string>
     <string name="authorization">Authorization</string>
     <string name="registration">Registration</string>

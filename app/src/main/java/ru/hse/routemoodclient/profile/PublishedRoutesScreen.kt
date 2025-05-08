@@ -1,5 +1,8 @@
 package ru.hse.routemoodclient.profile
 
+import androidx.compose.foundation.Image
+import ru.hse.routemoodclient.ui.PublishedRoute
+import ru.hse.routemoodclient.ui.ServerViewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,12 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,11 +45,12 @@ import ru.hse.routemoodclient.ui.components.GreenButton
 import ru.hse.routemoodclient.ui.theme.LightGreen
 
 @Composable
-fun RoutesListScreen(
+fun PublishedRoutesScreen(
     routeViewModel: RouteViewModel,
+    serverViewModel: ServerViewModel,
     onSettingsClicked: () -> Unit
 ) {
-    val routesList by routeViewModel.routesList.collectAsState()
+    val publishedRoutesList by serverViewModel.publishedRoutesState.collectAsState()
     val routeUiState by routeViewModel.routeState.collectAsState()
     Scaffold {
         LazyColumn(
@@ -57,53 +65,58 @@ fun RoutesListScreen(
                 )
             }
             item {
-                SaveRouteEntity(
+                PublishRouteEntity (
                     routeUiState = routeUiState,
-                    onSaveClicked = {routeViewModel.saveRoute()},
+                    onPublishClicked = {
+                        serverViewModel.askSaveRoute()
+                    },
                     onSettingsClicked = onSettingsClicked
                 )
             }
             item {
-                Text(
-                    text = "Saved routes",
-                    fontSize = 20.sp
-                )
+                Row {
+                    Text(
+                        text = "Published routes",
+                        fontSize = 20.sp
+                    )
+                    IconButton(
+                        onClick = {
+                            serverViewModel.askUserRoutes()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.refresh_icon),
+                            contentDescription = "refresh icon",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .weight(1f)
+                        )
+                    }
+                }
             }
-            if (routesList.isNotEmpty()) {
-                itemsIndexed(routesList) { index, routeEntity ->
-                    ShowRouteEntity(
+            if (publishedRoutesList.isNotEmpty()) {
+                itemsIndexed(publishedRoutesList) { index, publishedRoute ->
+                    ShowPublishedRouteEntity(
                         index = index,
-                        routeEntity = routeEntity,
-                        onDeleteClicked = {routeViewModel.deleteRoute(routeEntity.id)},
-                        onSetClicked = {routeViewModel.setUiRouteById(routeEntity.id)}
+                        routeEntity = publishedRoute
                     )
                 }
             } else {
                 item {
                     Text(
-                        text = "No saved routes",
+                        text = "No published routes",
                         fontSize = 20.sp
                     )
                 }
-            }
-            item {
-                GreenButton(
-                    onClick = {
-                        routeViewModel.deleteAllRoutes()
-                    },
-                    buttonText = "Delete all"
-                )
             }
         }
     }
 }
 
 @Composable
-fun ShowRouteEntity(
+fun ShowPublishedRouteEntity(
     index: Int,
-    routeEntity: RouteEntity,
-    onDeleteClicked : () -> Unit,
-    onSetClicked : () -> Unit
+    routeEntity: PublishedRoute
 ) {
     Card (
         shape = RoundedCornerShape(15.dp),
@@ -120,38 +133,33 @@ fun ShowRouteEntity(
             Spacer(Modifier.width(10.dp))
             Column (modifier = Modifier.weight(5f)) {
                 Text(
-                    text = "${routeEntity.name}:",
+                    text = "${routeEntity.authorUsername}:",
                     fontSize = 18.sp
                 )
-                Text(text = routeEntity.routeRequest,
-                    fontSize = 20.sp)
-            }
-            IconButton(
-                onClick = onSetClicked
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.set_route_ui_icon),
-                    contentDescription = "set icon",
-                    modifier = Modifier.weight(1f)
+                Text(
+                    text = routeEntity.description,
+                    fontSize = 20.sp
                 )
             }
-            IconButton(
-                onClick = onDeleteClicked
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.delete_icon),
-                    contentDescription = "delete icon",
-                    modifier = Modifier.weight(1f)
+            Row {
+                Text(
+                    text = "${routeEntity.rating}",
+                    fontSize = 20.sp
+                )
+                Image(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "star"
                 )
             }
+
         }
     }
 }
 
 @Composable
-fun SaveRouteEntity(
+fun PublishRouteEntity(
     routeUiState: RouteUiState,
-    onSaveClicked: () -> Unit,
+    onPublishClicked: () -> Unit,
     onSettingsClicked: () -> Unit
 ) {
     Card (
@@ -181,16 +189,20 @@ fun SaveRouteEntity(
                 Icon(
                     painter = painterResource(id = R.drawable.settings_icon),
                     contentDescription = "settings icon",
-                    modifier = Modifier.weight(1f).requiredSize(30.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .requiredSize(30.dp)
                 )
             }
             IconButton(
-                onClick = onSaveClicked
+                onClick = onPublishClicked
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.save_icon),
+                    imageVector = Icons.AutoMirrored.Default.Send,
                     contentDescription = "delete icon",
-                    modifier = Modifier.weight(1f).requiredSize(30.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .requiredSize(30.dp)
                 )
             }
         }
@@ -199,12 +211,12 @@ fun SaveRouteEntity(
 
 @Preview
 @Composable
-private fun ShowRouteEntityPreview() {
-    ShowRouteEntity(0, RouteEntity(), {}, {})
+private fun ShowPublishedRouteEntityPreview() {
+    ShowPublishedRouteEntity(0, PublishedRoute())
 }
 
 @Preview
 @Composable
-private fun SaveRouteEntityPreview() {
-    SaveRouteEntity(RouteUiState(), {}, {})
+private fun PublishRouteEntityPreview() {
+    PublishRouteEntity(RouteUiState(), {}, {})
 }

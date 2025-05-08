@@ -15,9 +15,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.LatLng
 import ru.hse.routemoodclient.R
+import ru.hse.routemoodclient.map.CreateUserRoute
 import ru.hse.routemoodclient.map.ShowMap
 import ru.hse.routemoodclient.profile.ProfileSheet
 import ru.hse.routemoodclient.screens.LoginScreen
+import ru.hse.routemoodclient.screens.NetworkScreen
 import ru.hse.routemoodclient.screens.RegisterScreen
 import ru.hse.routemoodclient.screens.RouteSettings
 import ru.hse.routemoodclient.ui.RouteViewModel
@@ -44,6 +46,10 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
         title = R.string.set_end_marker_screen,
         color = LightGreen
     ),
+    SetUserRoute(
+        title = R.string.set_user_route_screen,
+        color = LightGreen
+    ),
     Login(
         title = R.string.authorization,
         color = LightGreen
@@ -55,6 +61,10 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
     RouteSettings(
         title = R.string.route_settings,
         color = LightGreen
+    ),
+    Network(
+        title = R.string.network_screen,
+        color = LightGreen
     )
 }
 
@@ -62,7 +72,8 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
 fun RouteMoodApp(
     serverViewModel: ServerViewModel = hiltViewModel(),
     routeViewModel: RouteViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    mapsApiKey: String
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -75,6 +86,13 @@ fun RouteMoodApp(
         currentScreen = currentScreen,
         canNavigateBack = navController.previousBackStackEntry != null,
         navigateUp = { navController.navigateUp() },
+        toLoginScreen = {
+            navController.navigate(RouteMoodScreen.Start.name) {
+                popUpTo(RouteMoodScreen.Start.name) {
+                    inclusive = true
+                }
+            }
+        },
         toMapScreen = {
             navController.navigate(RouteMoodScreen.Map.name) {
                 launchSingleTop = true
@@ -85,7 +103,11 @@ fun RouteMoodApp(
                 launchSingleTop = true
             }
         },
-        toNetScreen = {},
+        toNetScreen = {
+            navController.navigate(RouteMoodScreen.Network.name) {
+                launchSingleTop = true
+            }
+        },
         serverViewModel = serverViewModel,
         routeViewModel = routeViewModel
     ) { innerPadding ->
@@ -126,6 +148,9 @@ fun RouteMoodApp(
                     setRouteEnd = {
                         navController.navigate(RouteMoodScreen.SetEnd.name)
                     },
+                    setWholeRoute = {
+                        navController.navigate(RouteMoodScreen.SetUserRoute.name)
+                    },
                     onGenerateButtonClicked = {
                         //serverViewModel.askRoute()
                         serverViewModel.askFictiveRoute()
@@ -136,15 +161,20 @@ fun RouteMoodApp(
                     }
                 )
             }
+            composable(route = RouteMoodScreen.Network.name) {
+                NetworkScreen(
+                    serverViewModel = serverViewModel
+                )
+            }
             composable(route = RouteMoodScreen.Map.name) {
                 ShowMap(
-                    viewModel = routeViewModel,
+                    viewModel = serverViewModel,
                     onMapClick = {}
                 )
             }
             composable(route = RouteMoodScreen.SetStart.name) {
                 ShowMap(
-                    viewModel = routeViewModel,
+                    viewModel = serverViewModel,
                     onMapClick = {
                             latLng: LatLng ->
                         routeViewModel.setStart(latLng.latitude, latLng.longitude)
@@ -153,11 +183,17 @@ fun RouteMoodApp(
             }
             composable(route = RouteMoodScreen.SetEnd.name) {
                 ShowMap(
-                    viewModel = routeViewModel,
+                    viewModel = serverViewModel,
                     onMapClick = {
                             latLng: LatLng ->
                         routeViewModel.setEnd(latLng.latitude, latLng.longitude)
                     }
+                )
+            }
+            composable(route = RouteMoodScreen.SetUserRoute.name) {
+                CreateUserRoute(
+                    routeViewModel = routeViewModel,
+                    mapsApiKey = mapsApiKey
                 )
             }
         }

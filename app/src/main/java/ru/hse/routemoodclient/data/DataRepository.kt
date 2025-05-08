@@ -4,9 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import javax.inject.Singleton
 
-//@Singleton
+@Singleton
 class DataRepository @Inject constructor(private val routeDao: RouteDao) {
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
@@ -36,10 +38,14 @@ class DataRepository @Inject constructor(private val routeDao: RouteDao) {
     }
 
     fun updateUserState(newUserState: UserState) {
-        _userState.value = newUserState
+        _userState.update {
+            newUserState
+        }
     }
 
     fun updateRouteState(newRouteState: RouteUiState) {
-        _routeState.value = newRouteState
+        _routeState.update {
+            newRouteState
+        }
     }
 }

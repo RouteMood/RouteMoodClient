@@ -26,6 +26,7 @@ fun RouteSettings(
     routeViewModel: RouteViewModel,
     setRouteStart: () -> Unit,
     setRouteEnd: () -> Unit,
+    setWholeRoute: () -> Unit,
     onGenerateButtonClicked: () -> Unit,
     onDiscardButtonClicked: () -> Unit
     ) {
@@ -60,6 +61,13 @@ fun RouteSettings(
             ButtonWithTitle(
                 title = "Route's end",
                 onClick = setRouteEnd,
+                buttonText = "Set on map"
+            )
+        }
+        item {
+            ButtonWithTitle(
+                title = "Make your own route",
+                onClick = setWholeRoute,
                 buttonText = "Set on map"
             )
         }
@@ -104,6 +112,7 @@ fun RouteSettingsPreview() {
         routeViewModel = hiltViewModel(),
         setRouteStart = {},
         setRouteEnd = {},
+        setWholeRoute = {},
         onGenerateButtonClicked = {},
         onDiscardButtonClicked = {}
     )

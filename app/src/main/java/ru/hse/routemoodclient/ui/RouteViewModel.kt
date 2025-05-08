@@ -92,6 +92,20 @@ class RouteViewModel @Inject constructor(
     }
 
     /**
+     * Set the whole coordinates for this route's state.
+     */
+    fun setRoute(coordinates : List<LatLng>) {
+        val updatedRouteState = routeState.value.copy(
+            start = coordinates.first(),
+            isStartSet = true,
+            end = coordinates.last(),
+            isEndSet = true,
+            route = coordinates
+        )
+        dataRepository.updateRouteState(updatedRouteState)
+    }
+
+    /**
      * Set the [routeRequest] for this route's state.
      */
     fun setRequest(routeRequest: String) {

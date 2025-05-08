@@ -1,5 +1,7 @@
 package ru.hse.routemood.models;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 import java.util.StringJoiner;
 import lombok.AllArgsConstructor;
@@ -12,7 +14,7 @@ import lombok.Getter;
 public class Route {
 
     private List<RouteItem> route;
-
+    /*
     @Override
     public String toString() {
         StringJoiner result = new StringJoiner("\n");
@@ -20,6 +22,12 @@ public class Route {
             result.add(it.toString());
         }
         return result.toString();
+    }
+    */
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 
     @Getter

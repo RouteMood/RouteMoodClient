@@ -1,6 +1,7 @@
 package ru.hse.routemoodclient.profile
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -27,44 +28,46 @@ import ru.hse.routemoodclient.ui.components.GreenButton
 
 @Composable
 fun ProfileScreen(
-    closeSheet : () -> Unit,
     toSavedRoutes : () -> Unit,
+    toSharedRoutes : () -> Unit,
+    toSettings : () -> Unit,
+    logout : () -> Unit,
     serverViewModel: ServerViewModel
 ) {
     val userState by serverViewModel.userState.collectAsState()
     Scaffold() {
         LazyColumn(
             modifier = Modifier.padding(it).fillMaxSize(),
+            contentPadding = PaddingValues(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
-                Box (modifier = Modifier.fillParentMaxWidth()) {
-                    IconButton(onClick = closeSheet) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = stringResource(R.string.back_button)
-                        )
-                    }
-                }
-            }
             item {
                 Text(userState.username)
             }
             item {
                 GreenButton(
                     onClick = toSavedRoutes,
-                    buttonText = "Saved routes"
+                    buttonText = "Saved routes",
+                    modifier = Modifier.fillParentMaxWidth()
                 )
             }
             item {
                 GreenButton(
-                    onClick = {},
-                    buttonText = "Settings"
+                    onClick = toSharedRoutes,
+                    buttonText = "Shared routes",
+                    modifier = Modifier.fillParentMaxWidth()
+                )
+            }
+            item {
+                GreenButton(
+                    onClick = toSettings,
+                    buttonText = "Settings",
+                    modifier = Modifier.fillParentMaxWidth()
                 )
             }
             item {
                 IconButton(
-                    onClick = {}
+                    onClick = logout
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.logout_icon),
@@ -82,8 +85,10 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-        closeSheet = {},
         toSavedRoutes = {},
+        toSharedRoutes = {},
+        toSettings = {},
+        logout = {},
         serverViewModel = hiltViewModel()
     )
 }

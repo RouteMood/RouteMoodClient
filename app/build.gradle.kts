@@ -53,6 +53,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
@@ -60,10 +61,13 @@ android {
 }
 
 dependencies {
+    // Permissions
+    implementation ("com.google.accompanist:accompanist-permissions:0.37.0")
     // Gson
     implementation ("com.google.code.gson:gson:2.12.1")
     //Room
     implementation("androidx.room:room-runtime:2.7.0")
+    implementation(libs.androidx.runtime.livedata)
     ksp("androidx.room:room-compiler:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
     // Hilt
@@ -76,7 +80,7 @@ dependencies {
     // Server module
     implementation(project(":serverInteractor"))
     // Retrofit
-    // implementation(libs.retrofit)
+    implementation(libs.retrofit)
     // Retrofit with Scalar Converter
     implementation(libs.converter.scalars)
     // Google maps
