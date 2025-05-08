@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             val bundle = app.metaData
             RouteMoodClientTheme {
                 RouteMoodApp(
-                    mapsApiKey = bundle.getString("com.google.android.geo.API_KEY")!!
+                    mapsApiKey = bundle.getString("com.google.android.geo.SERVER_API_KEY")!!
                 )
             }
         }

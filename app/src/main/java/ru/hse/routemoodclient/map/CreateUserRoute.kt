@@ -99,7 +99,7 @@ fun CreateUserRoute (
             GreenButton(
                 onClick = {
                     if (markers.size > 1) {
-                        apiService.updatePositions(markers.map { it.position })
+                        apiService.updatePositions(mapsApiKey, markers.map { it.position })
                     }
                 },
                 buttonText = "Build"

@@ -73,6 +73,7 @@ class ApiService : ViewModel() {
     }
 
     fun updatePositions(
+        mapsApiKey : String,
         positions: List<LatLng>
     ) {
         viewModelScope.launch {
@@ -84,7 +85,7 @@ class ApiService : ViewModel() {
                     continue
                 }
                 val route = getRoutesSuspend(
-                    "AIzaSyDRKQAbmrDRXmNuLFUv3f_ygLA58eIol0A",
+                    mapsApiKey,
                     previousPos,
                     currentPos,
                     false
