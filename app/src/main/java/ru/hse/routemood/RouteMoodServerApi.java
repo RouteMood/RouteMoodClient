@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
@@ -51,6 +52,9 @@ public interface RouteMoodServerApi {
     @POST("/rating/save")
     Call<RatingResponse> saveRoute(@Body RatingRequest request,
         @Header("Authorization") String authHeader);
+
+    @DELETE("/rating/delete")
+    Call<Void> deleteRoute(@Query("id") UUID routeId, @Header("Authorization") String authHeader);
 
     @PATCH("/rating/add-rate")
     Call<RatingResponse> addRate(@Body RateRequest request,

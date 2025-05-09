@@ -111,6 +111,11 @@ public class Controller {
         call.enqueue(createDefaulteCallback(callback));
     }
 
+    public void deleteRoute(UUID routeId, ApiCallback<Void> callback) {
+        Call<Void> call = routeMoodServerApi.deleteRoute(routeId, sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
     public void addRate(RateRequest request, ApiCallback<RatingResponse> callback) {
         Call<RatingResponse> call = routeMoodServerApi.addRate(request, sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));

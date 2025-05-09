@@ -44,8 +44,7 @@ public class TestMain {
 
     @Test
     public void rateRoute() throws InterruptedException {
-        Double[][] array = {{1.0, 2.0},
-            {3.0, 4.0}};
+        Double[][] array = {{1.0, 2.0}, {3.0, 4.0}};
 
         List<RouteItem> result = new ArrayList<>();
         for (Double[] doubles : array) {
@@ -69,6 +68,8 @@ public class TestMain {
                                 new RateRequest(result1.getId(), username, 4),
                                 (TestApiCallback<RatingResponse>) response1 -> System.out.println(
                                     "After second rate: rating = " + response1.getRating()));
+                            controller.deleteRoute(result1.getId(),
+                                (TestApiCallback<Void>) v -> {});
                         });
                 })));
     }
