@@ -24,12 +24,13 @@ import ru.hse.routemood.models.User;
 
 public class Controller {
 
+    private Gson gson;
     private final RouteMoodServerApi routeMoodServerApi;
     private final SessionManager sessionManager;
 
     public Controller() {
         sessionManager = SessionManager.getInstance();
-        Gson gson = new GsonBuilder()
+        gson = new GsonBuilder()
             .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
             .registerTypeAdapter(double.class, new DoubleTypeAdapter())
             .create();
@@ -47,8 +48,18 @@ public class Controller {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
                 if (response.isSuccessful()) {
+                    T body = response.body();
+                    String json = gson.toJson(body);
+                    System.out.println("Response JSON: " + json);
                     callback.onSuccess(response.body());
                 } else {
+                    String errorBody = "";
+                    try {
+                        errorBody = response.errorBody().string();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Error response JSON: " + errorBody);
                     callback.onError("Error " + response.code() + ": " + response.message());
                 }
             }
@@ -65,9 +76,19 @@ public class Controller {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful()) {
-                    sessionManager.setToken("Bearer " + response.body().getToken());
+                    AuthResponse body = response.body();
+                    String json = gson.toJson(body);
+                    System.out.println("Auth Response JSON: " + json);
+                    sessionManager.setToken("Bearer " + body.getToken());
                     callback.onSuccess(response.body());
                 } else {
+                    String errorBody = "";
+                    try {
+                        errorBody = response.errorBody().string();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Auth Error response JSON: " + errorBody);
                     callback.onError("Error " + response.code() + ": " + response.message());
                 }
             }
