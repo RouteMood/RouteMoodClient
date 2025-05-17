@@ -2,13 +2,18 @@ package ru.hse.routemood;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.junit.jupiter.api.Test;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
+import ru.hse.routemood.dto.ImageSaveResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
@@ -69,7 +74,8 @@ public class TestMain {
                                 (TestApiCallback<RatingResponse>) response1 -> System.out.println(
                                     "After second rate: rating = " + response1.getRating()));
                             controller.deleteRoute(result1.getId(),
-                                (TestApiCallback<Void>) v -> {});
+                                (TestApiCallback<Void>) v -> {
+                                });
                         });
                 })));
     }
@@ -92,6 +98,39 @@ public class TestMain {
         loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getRatedRouteById(
             UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
             (TestApiCallback<RatingResponse>) System.out::println));
+    }
+
+    @Test
+    public void saveAndThenDeleteImage() throws Exception {
+        File file = new File(
+            "/tmp/routemood/test/images/test.jpg"); // TODO load path from application.yaml
+
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
+
+        MultipartBody.Part filePart = MultipartBody.Part.createFormData(
+            "file",
+            file.getName(),
+            requestFile
+        );
+
+        RequestBody mimeTypeBody = RequestBody.create(
+            MediaType.parse("text/plain"),
+            "image/jpeg"
+        );
+
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
+            controller.saveImage(
+                filePart,
+                mimeTypeBody,
+                (TestApiCallback<ImageSaveResponse>) response -> {
+                    System.out.println(response);
+                    controller.deleteImage(response.getId(),
+                        (TestApiCallback<Void>) System.out::println);
+                }
+            )
+        );
+
+        Thread.sleep(500);
     }
 
     private void loginDefaultTestUserAndRunOnSuccess(Consumer<AuthResponse> task)
