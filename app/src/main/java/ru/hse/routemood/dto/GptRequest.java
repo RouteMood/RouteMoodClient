@@ -1,4 +1,4 @@
-package ru.hse.routemood.models;
+package ru.hse.routemood.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +16,6 @@ import lombok.Setter;
 public class GptRequest {
 
     private String request;
-    private Double longitude;
     private Double latitude;
+    private Double longitude;
 }
