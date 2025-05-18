@@ -78,6 +78,8 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
     ),
     Loading(
         title = R.string.loading_screen,
+        color = LightGreen
+    ),
     RoutesList(
         title = R.string.routes_list_screen,
         color = LightGreen
