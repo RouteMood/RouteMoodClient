@@ -1,12 +1,18 @@
 package ru.hse.routemoodclient.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -19,6 +25,9 @@ import ru.hse.routemoodclient.map.CreateUserRoute
 import ru.hse.routemoodclient.map.ShowMap
 import ru.hse.routemoodclient.profile.ProfileSheet
 import ru.hse.routemoodclient.screens.LoadingScreen
+import ru.hse.routemoodclient.profile.PublishedRoutesScreen
+import ru.hse.routemoodclient.profile.RoutesListScreen
+import ru.hse.routemoodclient.profile.UserSettingsScreen
 import ru.hse.routemoodclient.screens.LoginScreen
 import ru.hse.routemoodclient.screens.NetworkScreen
 import ru.hse.routemoodclient.screens.RegisterScreen
@@ -67,8 +76,21 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
         title = R.string.network_screen,
         color = LightGreen
     ),
+<<<<<<< HEAD
     Loading(
         title = R.string.loading_screen,
+=======
+    RoutesList(
+        title = R.string.routes_list_screen,
+        color = LightGreen
+    ),
+    UserSettings(
+        title = R.string.user_settings_screen,
+        color = LightGreen
+    ),
+    PublishedRoutes(
+        title = R.string.published_routes_screen,
+>>>>>>> main
         color = LightGreen
     )
 }
@@ -84,33 +106,17 @@ fun RouteMoodApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = RouteMoodScreen.valueOf(
-        backStackEntry?.destination?.route ?: RouteMoodScreen.Start.name
+        backStackEntry?.destination?.route ?: RouteMoodScreen.Login.name
     )
 
     ProfileSheet(
         currentScreen = currentScreen,
-        canNavigateBack = navController.previousBackStackEntry != null,
-        navigateUp = { navController.navigateUp() },
+        navController = navController,
         toLoginScreen = {
-            navController.navigate(RouteMoodScreen.Start.name) {
-                popUpTo(RouteMoodScreen.Start.name) {
+            navController.navigate(RouteMoodScreen.Login.name) {
+                popUpTo(RouteMoodScreen.Login.name) {
                     inclusive = true
                 }
-            }
-        },
-        toMapScreen = {
-            navController.navigate(RouteMoodScreen.Map.name) {
-                launchSingleTop = true
-            }
-        },
-        toRouteSettings = {
-            navController.navigate(RouteMoodScreen.RouteSettings.name) {
-                launchSingleTop = true
-            }
-        },
-        toNetScreen = {
-            navController.navigate(RouteMoodScreen.Network.name) {
-                launchSingleTop = true
             }
         },
         serverViewModel = serverViewModel,
@@ -118,13 +124,13 @@ fun RouteMoodApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = RouteMoodScreen.Start.name,
+            startDestination = RouteMoodScreen.Login.name,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            composable(route = RouteMoodScreen.Start.name) {
-                LoginScreen (
+            composable(route = RouteMoodScreen.Login.name) {
+                LoginScreen(
                     serverViewModel = serverViewModel,
                     onLoginButtonClicked = {
                         serverViewModel.askLoginUser()
@@ -144,7 +150,7 @@ fun RouteMoodApp(
                 )
             }
             composable(route = RouteMoodScreen.Register.name) {
-                RegisterScreen (
+                RegisterScreen(
                     serverViewModel = serverViewModel,
                     onRegisterButtonClicked = {
                         serverViewModel.askRegisterUser()
@@ -153,7 +159,7 @@ fun RouteMoodApp(
                 )
             }
             composable(route = RouteMoodScreen.RouteSettings.name) {
-                RouteSettings (
+                RouteSettings(
                     routeViewModel = routeViewModel,
                     setRouteStart = {
                         navController.navigate(RouteMoodScreen.SetStart.name)
@@ -175,6 +181,7 @@ fun RouteMoodApp(
             }
             composable(route = RouteMoodScreen.Network.name) {
                 NetworkScreen(
+                    routeViewModel = routeViewModel,
                     serverViewModel = serverViewModel
                 )
             }
@@ -187,8 +194,7 @@ fun RouteMoodApp(
             composable(route = RouteMoodScreen.SetStart.name) {
                 ShowMap(
                     viewModel = serverViewModel,
-                    onMapClick = {
-                            latLng: LatLng ->
+                    onMapClick = { latLng: LatLng ->
                         routeViewModel.setStart(latLng.latitude, latLng.longitude)
                     }
                 )
@@ -196,8 +202,7 @@ fun RouteMoodApp(
             composable(route = RouteMoodScreen.SetEnd.name) {
                 ShowMap(
                     viewModel = serverViewModel,
-                    onMapClick = {
-                            latLng: LatLng ->
+                    onMapClick = { latLng: LatLng ->
                         routeViewModel.setEnd(latLng.latitude, latLng.longitude)
                     }
                 )
@@ -206,6 +211,32 @@ fun RouteMoodApp(
                 CreateUserRoute(
                     routeViewModel = routeViewModel,
                     mapsApiKey = mapsApiKey
+                )
+            }
+            composable(route = RouteMoodScreen.RoutesList.name) {
+                RoutesListScreen(
+                    routeViewModel = routeViewModel,
+                    onSettingsClicked = {
+                        navController.navigate(RouteMoodScreen.RouteSettings.name) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(route = RouteMoodScreen.UserSettings.name) {
+                UserSettingsScreen(
+                    serverViewModel = serverViewModel
+                )
+            }
+            composable(route = RouteMoodScreen.PublishedRoutes.name) {
+                PublishedRoutesScreen(
+                    routeViewModel = routeViewModel,
+                    serverViewModel = serverViewModel,
+                    onSettingsClicked = {
+                        navController.navigate(RouteMoodScreen.RouteSettings.name) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }

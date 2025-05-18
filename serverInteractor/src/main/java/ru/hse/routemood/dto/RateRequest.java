@@ -18,4 +18,3 @@ public class RateRequest {
     public String username;
     public int rate;
 }
-

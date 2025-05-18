@@ -1,12 +1,11 @@
 package ru.hse.routemood.models;
 
-import java.util.List;
-import java.util.StringJoiner;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
+import java.util.List;
+import java.util.StringJoiner;
+
 @Getter
 @AllArgsConstructor
 public class Route {

@@ -78,6 +78,12 @@ class ServerViewModel @Inject constructor(
      * Route state
      */
     val routeState: StateFlow<RouteUiState> = dataRepository.routeState
+    /**
+     * Operation's state
+     */
+    var isRefreshing by mutableStateOf(false)
+        private set
+
 
     /**
      * User's published routes
@@ -243,18 +249,6 @@ class ServerViewModel @Inject constructor(
         }
     }
 
-    private fun convertRoute(route: List<Double>): List<LatLng> {
-        require(route.size % 2 == 0) { "The size of the route list must be even." }
-
-        val convertedRoute = mutableListOf<LatLng>()
-        for (i in route.indices step 2) {
-            val latitude = route[i]
-            val longitude = route[i + 1]
-            convertedRoute.add(LatLng(latitude, longitude))
-        }
-        return convertedRoute
-    }
-
     /**
      * Ask save route on server
      */
@@ -265,6 +259,8 @@ class ServerViewModel @Inject constructor(
                     val convertedRoute = latlngList(result.route)
                     val newRoute = PublishedRoute(
                         id = result.id,
+                        name = result.name,
+                        description = result.description,
                         rating = result.rating,
                         authorUsername = result.authorUsername,
                         route = convertedRoute
@@ -355,9 +351,50 @@ class ServerViewModel @Inject constructor(
     }
 
     /**
+     * Ask delete route from server
+     */
+    fun askDeleteRoute(routeId: UUID) {
+        val addRateResponse = object : ApiCallback<Void?> {
+            override fun onSuccess(result: Void?) {
+                // TODO
+            }
+            override fun onError(error: String) {
+                System.err.println(error)
+            }
+        }
+        val saveResponse = object : ApiCallback<AuthResponse?> {
+            override fun onSuccess(result: AuthResponse?) {
+                try {
+                    controller.deleteRoute(
+                        routeId,
+                        addRateResponse
+                    )
+                } catch (ex: Exception) {
+                    // TODO
+                }
+
+            }
+
+            override fun onError(error: String) {
+                System.err.println(error)
+            }
+        }
+
+        try {
+            controller.loginUser(
+                AuthRequest(userState.value.username, userState.value.password),
+                saveResponse
+            )
+        } catch (ex: Exception) {
+            // TODO
+        }
+    }
+
+    /**
      * Ask update user's published route list
      */
     fun askUserRoutes() {
+        isRefreshing = true
         val rateListResponse = object : ApiCallback<List<RatingResponse>?> {
             override fun onSuccess(result: List<RatingResponse>?) {
                 if (result != null) {
@@ -372,9 +409,11 @@ class ServerViewModel @Inject constructor(
                         )
                     }
                 }
+                isRefreshing = false
             }
             override fun onError(error: String) {
                 System.err.println(error)
+                isRefreshing = false
             }
         }
         val updateResponse = object : ApiCallback<AuthResponse?> {
@@ -391,6 +430,7 @@ class ServerViewModel @Inject constructor(
             }
             override fun onError(error: String) {
                 System.err.println(error)
+                isRefreshing = false
             }
         }
 
@@ -408,6 +448,7 @@ class ServerViewModel @Inject constructor(
      * Ask update on rating route list
      */
     fun askListRoutes() {
+        isRefreshing = true
         val rateListResponse = object : ApiCallback<List<RatingResponse>?> {
             override fun onSuccess(result: List<RatingResponse>?) {
                 if (result != null) {
@@ -422,8 +463,10 @@ class ServerViewModel @Inject constructor(
                         )
                     }
                 }
+                isRefreshing = false
             }
             override fun onError(error: String) {
+                isRefreshing = false
                 System.err.println(error)
             }
         }
@@ -438,6 +481,7 @@ class ServerViewModel @Inject constructor(
             }
             override fun onError(error: String) {
                 System.err.println(error)
+                isRefreshing = false
             }
         }
 

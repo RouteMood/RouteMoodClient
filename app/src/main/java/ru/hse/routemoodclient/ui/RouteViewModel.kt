@@ -115,6 +115,29 @@ class RouteViewModel @Inject constructor(
         dataRepository.updateRouteState(updatedRouteState)
     }
 
+    fun getServerRoute(routeEntity: PublishedRoute) {
+        val updatedRouteState : RouteUiState
+        if (routeEntity.route.isEmpty()) {
+            updatedRouteState = routeState.value.copy(
+                name = routeEntity.name,
+                routeRequest = routeEntity.description,
+                route = routeEntity.route
+            )
+        } else {
+            updatedRouteState = routeState.value.copy(
+                start = routeEntity.route.first(),
+                isStartSet = true,
+                end = routeEntity.route.last(),
+                isEndSet = true,
+                name = routeEntity.name,
+                routeRequest = routeEntity.description,
+                route = routeEntity.route
+            )
+        }
+
+        dataRepository.updateRouteState(updatedRouteState)
+    }
+
     /**
      * Set the [routeRequest] for this route's state.
      */

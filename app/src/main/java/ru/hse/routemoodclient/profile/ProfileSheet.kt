@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,18 +47,13 @@ import ru.hse.routemoodclient.ui.theme.LightGreen
 @Composable
 fun ProfileSheet(
     currentScreen: RouteMoodScreen,
-    canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
+    navController: NavHostController,
     toLoginScreen: () -> Unit,
-    toMapScreen: () -> Unit,
-    toRouteSettings: () -> Unit,
-    toNetScreen: () -> Unit,
     serverViewModel: ServerViewModel,
     routeViewModel: RouteViewModel,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isDrawerOpen = remember { mutableStateOf(false) }
-    val navController = rememberNavController()
     val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -64,29 +61,36 @@ fun ProfileSheet(
             topBar = {
                 RouteMoodTopBar(
                     currentScreen = currentScreen,
-                    canNavigateBack = canNavigateBack,
-                    navigateUp = navigateUp,
-                    actions = {
-                        IconButton(onClick = {
-                            isDrawerOpen.value = !isDrawerOpen.value
-                        }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
-                        }
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() },
+                    openProfile = {
+                        isDrawerOpen.value = !isDrawerOpen.value
                     }
                 )
             },
             bottomBar = {
                 RouteMoodBottomBar(
                     currentScreen = currentScreen,
-                    toMapScreen = toMapScreen,
-                    toRouteSettings = toRouteSettings,
-                    toNetScreen = toNetScreen
+                    toMapScreen = {
+                        navController.navigate(RouteMoodScreen.Map.name) {
+                            launchSingleTop = true
+                        }
+                    },
+                    toRouteSettings = {
+                        navController.navigate(RouteMoodScreen.RouteSettings.name) {
+                            launchSingleTop = true
+                        }
+                    },
+                    toNetScreen = {
+                        navController.navigate(RouteMoodScreen.Network.name) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         ) { innerPadding ->
             content(innerPadding)
         }
-
         AnimatedVisibility(
             visible = isDrawerOpen.value,
             enter = slideInHorizontally { fullWidth -> fullWidth },
@@ -96,81 +100,57 @@ fun ProfileSheet(
                 .fillMaxHeight()
                 .width(300.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White, shape = RoundedCornerShape(10.dp))
-            ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = "profileMenu",
-                    modifier = Modifier.padding(15.dp).fillMaxSize()
-                ) {
-                    composable("profileMenu") {
-                        Column {
-                            IconButton(onClick = { isDrawerOpen.value = !isDrawerOpen.value }) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    TopAppBar(
+                        title = {},
+                        navigationIcon = {
+                            IconButton(
+                                onClick = { isDrawerOpen.value = !isDrawerOpen.value }
+                            ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = stringResource(R.string.back_button)
+                                    contentDescription = stringResource(R.string.back_button),
+                                    tint = Color.Black
                                 )
                             }
-                            ProfileScreen(
-                                toSavedRoutes = { navController.navigate("routesList") },
-                                toSharedRoutes = { navController.navigate("publishedRoutes") },
-                                toSettings = { navController.navigate("userSettings") },
-                                logout = {
-                                    serverViewModel.resetUser()
-                                    isDrawerOpen.value = !isDrawerOpen.value
-                                    toLoginScreen()
-                                },
-                                serverViewModel = serverViewModel
-                            )
                         }
-
-                    }
-                    composable("routesList") {
-                        Column {
-                            IconButton(onClick = { navController.navigateUp() }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.back_button)
-                                )
+                    )
+                }
+            ) {
+                innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    ProfileScreen(
+                        toSavedRoutes = {
+                            navController.navigate(route = RouteMoodScreen.RoutesList.name) {
+                                launchSingleTop = true
                             }
-                            RoutesListScreen(
-                                routeViewModel = routeViewModel,
-                                onSettingsClicked = toRouteSettings
-                            )
-                        }
-
-                    }
-                    composable("userSettings") {
-                        Column {
-                            IconButton(onClick = { navController.navigateUp() }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.back_button)
-                                )
+                            isDrawerOpen.value = !isDrawerOpen.value
+                        },
+                        toSharedRoutes = {
+                            navController.navigate(route = RouteMoodScreen.PublishedRoutes.name) {
+                                launchSingleTop = true
                             }
-                            UserSettingsScreen(
-                                serverViewModel = serverViewModel
-                            )
-                        }
-                    }
-                    composable("publishedRoutes") {
-                        Column {
-                            IconButton(onClick = { navController.navigateUp() }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.back_button)
-                                )
+                            isDrawerOpen.value = !isDrawerOpen.value
+                        },
+                        toSettings = {
+                            navController.navigate(route = RouteMoodScreen.UserSettings.name) {
+                                launchSingleTop = true
                             }
-                            PublishedRoutesScreen(
-                                routeViewModel = routeViewModel,
-                                serverViewModel = serverViewModel,
-                                onSettingsClicked = toRouteSettings
-                            )
-                        }
-                    }
+                            isDrawerOpen.value = !isDrawerOpen.value
+                        },
+                        logout = {
+                            serverViewModel.resetUser()
+                            isDrawerOpen.value = !isDrawerOpen.value
+                            toLoginScreen()
+                        },
+                        serverViewModel = serverViewModel
+                    )
                 }
             }
         }
