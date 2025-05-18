@@ -10,15 +10,8 @@ import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-import ru.hse.routemood.dto.AuthRequest;
-import ru.hse.routemood.dto.AuthResponse;
-import ru.hse.routemood.dto.GptRequest;
-import ru.hse.routemood.dto.RateRequest;
-import ru.hse.routemood.dto.RatingRequest;
-import ru.hse.routemood.dto.RatingResponse;
-import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.Route;
-import ru.hse.routemood.models.User;
+import ru.hse.routemood.dto*
+import ru.hse.routemood.models*
 
 public interface RouteMoodServerApi {
 
@@ -71,4 +64,14 @@ public interface RouteMoodServerApi {
 
     @GET("/rating/get-all")
     Call<List<RatingResponse>> listRoutes(@Header("Authorization") String authHeader);
+
+    @POST("/images/save")
+    Call<ImageSaveResponse> saveImage(@Body ImageSaveRequest request,
+        @Header("Authorization") String authHeader);
+
+    @GET("/image/load")
+    Call<ImageLoadResponse> loadImage(@Query("id") UUID imageId,
+        @Header("Authorization") String authHeader);
+
+    Call<Void> deleteImage(@Query("id") UUID imageId, @Header("Authorization") String authHeader);
 }
