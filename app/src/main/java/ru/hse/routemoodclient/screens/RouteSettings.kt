@@ -30,6 +30,12 @@ fun RouteSettings(
     onGenerateButtonClicked: () -> Unit,
     onDiscardButtonClicked: () -> Unit
     ) {
+
+//    if (routeViewModel.isLoading()) {
+//        LoadingScreen()
+//        return
+//    }
+
     val routeState by routeViewModel.routeState.collectAsState()
     LazyColumn (
         modifier = Modifier.fillMaxSize(),

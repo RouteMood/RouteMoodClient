@@ -68,8 +68,14 @@ dependencies {
     //Room
     implementation("androidx.room:room-runtime:2.7.0")
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.appcompat)
     ksp("androidx.room:room-compiler:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
+
+    // video 1xBet player
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
+
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
@@ -105,6 +111,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 }
 
 kapt {

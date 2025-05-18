@@ -1,5 +1,8 @@
 package ru.hse.routemoodclient.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -29,6 +32,13 @@ class RouteViewModel @Inject constructor(
     val routeState: StateFlow<RouteUiState> = dataRepository.routeState
     val routesList: StateFlow<List<RouteEntity>> = dataRepository.getRouteList()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+
+    @Composable
+    fun isLoading(): Boolean {
+        val isLoading by dataRepository.isLoading.collectAsState()
+        return isLoading
+    }
 
     fun saveRoute() {
         val routeEntity: RouteEntity = routeState.value.toRouteEntity()

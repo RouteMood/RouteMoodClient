@@ -1,5 +1,8 @@
 package ru.hse.routemoodclient.data
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +18,23 @@ class DataRepository @Inject constructor(private val routeDao: RouteDao) {
 
     private val _routeState = MutableStateFlow(RouteUiState())
     val routeState: StateFlow<RouteUiState> = _routeState.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    fun setLoading(value: Boolean) {
+        _isLoading.update {
+            value
+        }
+    }
+
+//    @Composable
+//    fun stateLoading(): Boolean {
+//        val isloading by isLoading.collectAsState()
+//        return isloading
+//    }
+
+
 
     fun getRouteList() : Flow<List<RouteEntity>> {
         return routeDao.getAllRoutes()

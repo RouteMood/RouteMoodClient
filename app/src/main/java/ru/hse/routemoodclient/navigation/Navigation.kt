@@ -18,6 +18,7 @@ import ru.hse.routemoodclient.R
 import ru.hse.routemoodclient.map.CreateUserRoute
 import ru.hse.routemoodclient.map.ShowMap
 import ru.hse.routemoodclient.profile.ProfileSheet
+import ru.hse.routemoodclient.screens.LoadingScreen
 import ru.hse.routemoodclient.screens.LoginScreen
 import ru.hse.routemoodclient.screens.NetworkScreen
 import ru.hse.routemoodclient.screens.RegisterScreen
@@ -64,6 +65,10 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
     ),
     Network(
         title = R.string.network_screen,
+        color = LightGreen
+    ),
+    Loading(
+        title = R.string.loading_screen,
         color = LightGreen
     )
 }
@@ -130,6 +135,14 @@ fun RouteMoodApp(
                     }
                 )
             }
+            composable(route = RouteMoodScreen.Loading.name) {
+                LoadingScreen(
+                    viewModel = serverViewModel,
+                    afterVideo = {
+                        navController.navigate(RouteMoodScreen.Map.name)
+                    }
+                )
+            }
             composable(route = RouteMoodScreen.Register.name) {
                 RegisterScreen (
                     serverViewModel = serverViewModel,
@@ -152,9 +165,8 @@ fun RouteMoodApp(
                         navController.navigate(RouteMoodScreen.SetUserRoute.name)
                     },
                     onGenerateButtonClicked = {
-                        //serverViewModel.askRoute()
-                        serverViewModel.askFictiveRoute()
-                        navController.navigate(RouteMoodScreen.Map.name)
+                        serverViewModel.askRoute()
+                        navController.navigate(RouteMoodScreen.Loading.name)
                     },
                     onDiscardButtonClicked = {
                         routeViewModel.resetRoute()
