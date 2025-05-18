@@ -37,7 +37,7 @@ fun LoadingScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val showSkipButton = remember { mutableStateOf(false) }
-    val videoUrl = "https://download.samplelib.com/mp4/sample-5s.mp4"
+    val videoUrl = "http://192.168.0.107:8080/api/ads/download/random.mp4"
 
     val player = remember (videoUrl) {
         ExoPlayer.Builder(context).build().apply {
