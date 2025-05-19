@@ -49,6 +49,12 @@ fun RouteSettings(
     onDiscardButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
     ) {
+
+//    if (routeViewModel.isLoading()) {
+//        LoadingScreen()
+//        return
+//    }
+
     val routeState by routeViewModel.routeState.collectAsState()
     LazyColumn (
         modifier = modifier

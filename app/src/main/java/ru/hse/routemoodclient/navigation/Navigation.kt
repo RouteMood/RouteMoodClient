@@ -157,8 +157,8 @@ fun RouteMoodApp(
                         navController.navigate(RouteMoodScreen.SetUserRoute.name)
                     },
                     onGenerateButtonClicked = {
-                        serverViewModel.askRoute()
-                        // serverViewModel.askFictiveRoute()
+                        //serverViewModel.askRoute()
+                        serverViewModel.askFictiveRoute()
                         navController.navigate(RouteMoodScreen.Map.name)
                     },
                     onDiscardButtonClicked = {

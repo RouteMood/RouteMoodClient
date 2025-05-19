@@ -32,6 +32,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import ru.hse.routemoodclient.screens.LoadingScreen
 import ru.hse.routemoodclient.screens.LoginScreen
 import ru.hse.routemoodclient.ui.RouteViewModel
 import ru.hse.routemoodclient.ui.ServerViewModel
@@ -46,6 +47,11 @@ fun ShowMap (
     viewModel: ServerViewModel,
     onMapClick: (LatLng) -> Unit
 ) {
+//    if (viewModel.isLoading()) {
+//        LoadingScreen(viewModel)
+//        return
+//    }
+
     val routeState by viewModel.routeState.collectAsState()
 
     val startMarkerState = rememberUpdatedMarkerState(routeState.start)

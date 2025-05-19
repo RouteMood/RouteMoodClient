@@ -1,5 +1,6 @@
 package ru.hse.routemoodclient.ui
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,6 +26,8 @@ import ru.hse.routemoodclient.data.RouteUiState
 import ru.hse.routemoodclient.data.UserState
 import java.util.UUID
 import javax.inject.Inject
+import java.io.File
+import java.io.FileOutputStream
 
 sealed interface UserUiState {
     data class Success(val userState: StateFlow<UserState>) : UserUiState
@@ -46,9 +49,22 @@ data class PublishedRoute (
  */
 @HiltViewModel
 class ServerViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
-    private val controller : Controller = Controller()
+    private var controller = Controller()
+
+    fun copyAssetToFile(context: Context, assetFileName: String): File {
+        val file = File(context.cacheDir, assetFileName)
+        if (!file.exists()) {
+            context.assets.open(assetFileName).use { input ->
+                FileOutputStream(file).use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
+        return file
+    }
+
     /**
      * User State
      */
@@ -106,9 +122,12 @@ class ServerViewModel @Inject constructor(
      * Ask login user from server
      */
     fun askLoginUser() {
+        dataRepository.setLoading(true);
+
         userUiState = UserUiState.Loading
         val callback = object : ApiCallback<AuthResponse> {
             override fun onSuccess(result: AuthResponse?) {
+                dataRepository.setLoading(false)
                 if (result != null) {
                     val updatedUserState = userState.value.copy(token = result.token)
                     dataRepository.updateUserState(updatedUserState)
@@ -118,6 +137,7 @@ class ServerViewModel @Inject constructor(
                 }
             }
             override fun onError(error: String?) {
+                dataRepository.setLoading(false)
                 UserUiState.Error(error)
             }
         }
@@ -184,14 +204,17 @@ class ServerViewModel @Inject constructor(
      * Ask route from server
      */
     fun askRoute() {
+        dataRepository.setLoading(true);
         val getRouteResponse = object : ApiCallback<Route?> {
             override fun onSuccess(result: Route?) {
                 val updatedRouteState = routeState.value.copy(route = latlngList(result))
                 dataRepository.updateRouteState(updatedRouteState)
+//                setLoading(false);
             }
 
             override fun onError(error: String) {
                 System.err.println(error)
+//                setLoading(false);
             }
         }
         val getResponse = object : ApiCallback<AuthResponse?> {
@@ -207,11 +230,12 @@ class ServerViewModel @Inject constructor(
                 } catch (ex: Exception) {
                     // TODO
                 }
-
+                dataRepository.setLoading(false);
             }
 
             override fun onError(error: String) {
                 System.err.println(error)
+                dataRepository.setLoading(false);
             }
         }
 
