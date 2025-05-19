@@ -163,14 +163,12 @@ fun ShowRouteEntity(
             ) {
                 Text(
                     text = routeEntity.name,
+                    modifier = Modifier.weight(1F),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                Spacer(modifier = Modifier.weight(1F))
-
                 IconButton(
                     onClick = onSetClicked,
                     modifier = Modifier.size(48.dp),

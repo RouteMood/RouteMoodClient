@@ -73,8 +73,21 @@ fun ShowMap (
     var mapUiSettings by remember { mutableStateOf(MapUiSettings()) }
 
     LocationPermission(
-        { mapProperties = mapProperties.copy(isMyLocationEnabled = true) },
-        { mapUiSettings = mapUiSettings.copy(myLocationButtonEnabled = true) }
+        {
+            mapProperties = mapProperties.copy(
+                isBuildingEnabled = true,
+                isIndoorEnabled = true,
+                isMyLocationEnabled = true
+            )
+        },
+        {
+            mapUiSettings = mapUiSettings.copy(
+                indoorLevelPickerEnabled = true,
+                mapToolbarEnabled = true,
+                myLocationButtonEnabled = true,
+                rotationGesturesEnabled = true
+            )
+        }
     )
 
     GoogleMap(
