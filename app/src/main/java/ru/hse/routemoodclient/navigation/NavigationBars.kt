@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -71,7 +72,7 @@ fun RouteMoodTopBar(
             if (shouldDisplayTopBar) {
                 IconButton(onClick = openProfile) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.List,
+                        imageVector = Icons.Default.Person,
                         contentDescription = stringResource(R.string.back_button)
                     )
                 }

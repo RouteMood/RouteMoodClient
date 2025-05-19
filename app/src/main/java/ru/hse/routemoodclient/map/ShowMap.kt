@@ -32,6 +32,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import ru.hse.routemoodclient.screens.LoadingScreen
 import ru.hse.routemoodclient.screens.LoginScreen
 import ru.hse.routemoodclient.ui.RouteViewModel
 import ru.hse.routemoodclient.ui.ServerViewModel
@@ -46,6 +47,11 @@ fun ShowMap (
     viewModel: ServerViewModel,
     onMapClick: (LatLng) -> Unit
 ) {
+//    if (viewModel.isLoading()) {
+//        LoadingScreen(viewModel)
+//        return
+//    }
+
     val routeState by viewModel.routeState.collectAsState()
 
     val startMarkerState = rememberUpdatedMarkerState(routeState.start)
@@ -73,8 +79,21 @@ fun ShowMap (
     var mapUiSettings by remember { mutableStateOf(MapUiSettings()) }
 
     LocationPermission(
-        { mapProperties = mapProperties.copy(isMyLocationEnabled = true) },
-        { mapUiSettings = mapUiSettings.copy(myLocationButtonEnabled = true) }
+        {
+            mapProperties = mapProperties.copy(
+                isBuildingEnabled = true,
+                isIndoorEnabled = true,
+                isMyLocationEnabled = true
+            )
+        },
+        {
+            mapUiSettings = mapUiSettings.copy(
+                indoorLevelPickerEnabled = true,
+                mapToolbarEnabled = true,
+                myLocationButtonEnabled = true,
+                rotationGesturesEnabled = true
+            )
+        }
     )
 
     GoogleMap(

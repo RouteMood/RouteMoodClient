@@ -44,6 +44,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.hse.routemoodclient.R
 import ru.hse.routemoodclient.ui.ServerViewModel
@@ -51,7 +53,7 @@ import ru.hse.routemoodclient.ui.theme.LightGreen
 
 @Composable
 fun LoginScreen(
-    serverViewModel: ServerViewModel = viewModel(),
+    serverViewModel: ServerViewModel = hiltViewModel(),
     onLoginButtonClicked: () -> Unit,
     onRegisterButtonClicked: () -> Unit
 ) {

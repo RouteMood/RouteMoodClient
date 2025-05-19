@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -154,68 +155,66 @@ fun ShowPublishedRouteEntity(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
+        Column (
+            modifier = Modifier.padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            Row (
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = routeEntity.authorUsername,
+                    text = routeEntity.name,
+                    modifier = Modifier.weight(1F),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = routeEntity.description,
-                    fontSize = 16.sp,
-                    color = Color.DarkGray
-                )
+                Row(
+                    modifier = Modifier.height(48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = routeEntity.rating.toString(),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "star",
+                        tint = Color.Yellow
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = { onSaveClicked(routeEntity) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.save_icon),
+                        contentDescription = "delete icon",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = { onDeleteClicked(routeEntity.id) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.delete_icon),
+                        contentDescription = "delete icon",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Red
+                    )
+                }
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = routeEntity.rating.toString(),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "star",
-                    tint = Color.Yellow
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = { onSaveClicked(routeEntity) },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.save_icon),
-                    contentDescription = "delete icon",
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Black
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = { onDeleteClicked(routeEntity.id) },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.delete_icon),
-                    contentDescription = "delete icon",
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Red
-                )
-            }
+            Text(
+                text = routeEntity.description,
+                fontSize = 16.sp,
+                color = Color.DarkGray
+            )
         }
     }
 }
@@ -235,48 +234,47 @@ fun PublishRouteEntity(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            Row (
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = routeUiState.name,
+                    modifier = Modifier.weight(1F),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = routeUiState.routeRequest,
-                    fontSize = 16.sp,
-                    color = Color.DarkGray
-                )
+                IconButton(
+                    onClick = onSettingsClicked,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.settings_icon),
+                        contentDescription = "settings icon",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                IconButton(
+                    onClick = onPublishClicked,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.Send,
+                        contentDescription = "send icon",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Blue
+                    )
+                }
             }
-            IconButton(
-                onClick = onSettingsClicked,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.settings_icon),
-                    contentDescription = "settings icon"
-                )
-            }
-            Spacer(Modifier.width(10.dp))
-            IconButton(
-                onClick = onPublishClicked,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.Send,
-                    contentDescription = "send icon",
-                    tint = Color.Black
-                )
-            }
+            Text(
+                text = routeUiState.routeRequest,
+                fontSize = 16.sp,
+                color = Color.DarkGray
+            )
         }
     }
 }
@@ -290,5 +288,12 @@ private fun ShowPublishedRouteEntityPreview() {
 @Preview
 @Composable
 private fun PublishRouteEntityPreview() {
-    PublishRouteEntity(RouteUiState(), {}, {})
+    PublishRouteEntity(
+        RouteUiState(
+            name = "route                     2\n" +
+                    "3\n" +
+                    "4\n",
+            routeRequest = "1                     2\n3\n4\n"
+        ), {}, {}
+    )
 }
