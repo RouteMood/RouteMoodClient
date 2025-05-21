@@ -1,4 +1,4 @@
-package ru.hse.routemood;
+package ru.hse.routemood.adapters;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
