@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.hse.routemood.models.Route;
 
 @Data
 @Builder
@@ -14,11 +13,8 @@ import ru.hse.routemood.models.Route;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RatingRequest {
+public class ImageLoadResponse {
 
-    public String name;
-    public String description;
-    public String authorUsername;
-    public Route route;
+    private byte[] fileData;
+    private String mimeType;
 }
-

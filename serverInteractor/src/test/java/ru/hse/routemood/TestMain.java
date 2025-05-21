@@ -1,32 +1,44 @@
 package ru.hse.routemood;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.junit.jupiter.api.Test;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
+import ru.hse.routemood.dto.ImageLoadResponse;
+import ru.hse.routemood.dto.ImageSaveResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.Route.RouteItem;
 import ru.hse.routemood.models.User;
 
 public class TestMain {
 
+    private final String storagePath = "/tmp/routemood/"; // TODO load path from application.yaml
     Controller controller = new Controller();
+    private UUID lastSavedImageId;
 
     @Test
     public void registerAndLogin() {
         controller.registerUser(
             new RegisterRequest("testUser", "testUser", "passwd"),
-            (TestApiCallback<AuthResponse>) result -> controller.loginUser(
+            (TestApiCallback<AuthResponse>) response -> controller.loginUser(
                 new AuthRequest("testUser", "passwd"),
                 (TestApiCallback<AuthResponse>) System.out::println));
     }
@@ -39,14 +51,13 @@ public class TestMain {
 
     @Test
     public void listUsers() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess(response -> controller.listUsers(
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.listUsers(
             (TestApiCallback<List<User>>) System.out::println));
     }
 
     @Test
     public void rateRoute() throws InterruptedException {
-        Double[][] array = {{1.0, 2.0},
-            {3.0, 4.0}};
+        Double[][] array = {{1.0, 2.0}, {3.0, 4.0}};
 
         List<RouteItem> result = new ArrayList<>();
         for (Double[] doubles : array) {
@@ -58,43 +69,109 @@ public class TestMain {
         String username = "testUser";
 
         loginDefaultTestUserAndRunOnSuccess((authResponse ->
-            controller.saveRoute(new RatingRequest(username, route),
-                (TestApiCallback<RatingItem>) result1 -> {
-                    System.out.println(
-                        "RatingItem: id = " + result1.getId() + "; rating = " + result1.getRating()
-                            + "; route = " + result1.getRoute() + "; authorUsername = "
-                            + result1.getAuthorUsername());
+            controller.saveRoute(new RatingRequest("RouteName", "SomeDescription", username, route),
+                (TestApiCallback<RatingResponse>) result1 -> {
+                    System.out.println(result1);
 
                     controller.addRate(new RateRequest(result1.getId(), username, 5),
                         (TestApiCallback<RatingResponse>) response -> {
                             System.out.println(
                                 "After first rate: rating = " + response.getRating());
+                            controller.getUserRate(result1.getId(), username,
+                                (TestApiCallback<Integer>) rate -> {
+                                    System.out.println(rate);
+                                    assertEquals(5, rate);
+                                });
                             controller.addRate(
                                 new RateRequest(result1.getId(), username, 4),
                                 (TestApiCallback<RatingResponse>) response1 -> System.out.println(
                                     "After second rate: rating = " + response1.getRating()));
+                            controller.deleteRoute(result1.getId(),
+                                (TestApiCallback<Void>) v -> {
+                                });
                         });
                 })));
     }
 
     @Test
     public void getRatingTable() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess((authResponse) ->
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
             controller.listRoutes((TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesByAuthorUsername() throws InterruptedException {
         loginDefaultTestUserAndRunOnSuccess(
-            (authResponse) -> controller.getListRatedRoutesByAuthorUsername("testUser",
+            authResponse -> controller.getListRatedRoutesByAuthorUsername("testUser",
                 (TestApiCallback<List<RatingResponse>>) System.out::println));
     }
 
     @Test
     public void getRatedRoutesById() throws InterruptedException {
-        loginDefaultTestUserAndRunOnSuccess((authResponse) -> controller.getRatedRouteById(
-            UUID.fromString("a87f16ac-00fd-45ce-af86-c0a48afbfb17"),
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getRatedRouteById(
+            UUID.fromString("c79e7a3b-ad6b-4f9e-bd17-edf8b7e56aae"),
             (TestApiCallback<RatingResponse>) System.out::println));
+    }
+
+    @Test
+    public void saveAndThenDeleteImage() throws Exception {
+        File file = new File(
+            storagePath + "test/images/test.jpg");
+
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
+
+        MultipartBody.Part filePart = MultipartBody.Part.createFormData(
+            "file",
+            file.getName(),
+            requestFile
+        );
+
+        RequestBody mimeTypeBody = RequestBody.create(
+            MediaType.parse("text/plain"),
+            "image/jpeg"
+        );
+
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
+            controller.saveImage(
+                filePart,
+                (TestApiCallback<ImageSaveResponse>) response -> {
+                    lastSavedImageId = response.getId();
+                    System.out.println(response);
+                    controller.deleteImage(response.getId(),
+                        (TestApiCallback<Void>) System.out::println);
+                }
+            )
+        );
+
+        Thread.sleep(500);
+    }
+
+    @Test
+    public void loadImage() throws InterruptedException {
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
+            controller.loadImage(
+                lastSavedImageId,
+                (TestApiCallback<ImageLoadResponse>) response -> {
+                    Path uploadPath = Paths.get(storagePath + "test/images/");
+                    Path filePath = uploadPath.resolve("loadTest.jpg");
+
+                    try {
+                        Files.write(filePath, response.getFileData(), StandardOpenOption.CREATE,
+                            StandardOpenOption.TRUNCATE_EXISTING);
+                    } catch (Exception e) {
+                        System.err.println("Can't write image: " + e.getMessage());
+                        fail();
+                    }
+                }
+            )
+        );
+    }
+
+    @Test
+    public void deleteImage() throws InterruptedException {
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
+            controller.deleteImage(lastSavedImageId, (TestApiCallback<Void>) System.out::println)
+        );
     }
 
     private void loginDefaultTestUserAndRunOnSuccess(Consumer<AuthResponse> task)
@@ -121,5 +198,4 @@ public class TestMain {
             fail();
         }
     }
-
 }

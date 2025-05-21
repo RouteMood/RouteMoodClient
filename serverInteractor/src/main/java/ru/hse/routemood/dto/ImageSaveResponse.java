@@ -1,12 +1,12 @@
 package ru.hse.routemood.dto;
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.hse.routemood.models.Route;
 
 @Data
 @Builder
@@ -14,11 +14,7 @@ import ru.hse.routemood.models.Route;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RatingRequest {
+public class ImageSaveResponse {
 
-    public String name;
-    public String description;
-    public String authorUsername;
-    public Route route;
+    private UUID id;
 }
-

@@ -6,20 +6,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.UUID;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.Retrofit.Builder;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.hse.routemood.adapters.ByteArrayTypeAdapter;
+import ru.hse.routemood.adapters.DoubleTypeAdapter;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
 import ru.hse.routemood.dto.GptRequest;
+import ru.hse.routemood.dto.ImageLoadResponse;
+import ru.hse.routemood.dto.ImageSaveResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
-import ru.hse.routemood.models.RatingItem;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -31,6 +35,9 @@ public class Controller {
     public Controller() {
         sessionManager = SessionManager.getInstance();
         Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
+            .registerTypeAdapter(double.class, new DoubleTypeAdapter())
+            .registerTypeAdapter(byte[].class, new ByteArrayTypeAdapter())
             .create();
 
         Retrofit retrofit = new Builder()
@@ -104,13 +111,25 @@ public class Controller {
         call.enqueue(createDefaulteCallback(callback));
     }
 
-    public void saveRoute(RatingRequest request, ApiCallback<RatingItem> callback) {
-        Call<RatingItem> call = routeMoodServerApi.saveRoute(request, sessionManager.getToken());
+    public void saveRoute(RatingRequest request, ApiCallback<RatingResponse> callback) {
+        Call<RatingResponse> call = routeMoodServerApi.saveRoute(request,
+            sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void deleteRoute(UUID routeId, ApiCallback<Void> callback) {
+        Call<Void> call = routeMoodServerApi.deleteRoute(routeId, sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 
     public void addRate(RateRequest request, ApiCallback<RatingResponse> callback) {
         Call<RatingResponse> call = routeMoodServerApi.addRate(request, sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void getUserRate(UUID routeId, String username, ApiCallback<Integer> callback) {
+        Call<Integer> call = routeMoodServerApi.getUserRate(routeId, username,
+            sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 
@@ -128,6 +147,23 @@ public class Controller {
 
     public void listRoutes(ApiCallback<List<RatingResponse>> callback) {
         Call<List<RatingResponse>> call = routeMoodServerApi.listRoutes(sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void saveImage(MultipartBody.Part file, ApiCallback<ImageSaveResponse> callback) {
+        Call<ImageSaveResponse> call = routeMoodServerApi.saveImage(file,
+            sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void loadImage(UUID imageId, ApiCallback<ImageLoadResponse> callback) {
+        Call<ImageLoadResponse> call = routeMoodServerApi.loadImage(imageId,
+            sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void deleteImage(UUID imageId, ApiCallback<Void> callback) {
+        Call<Void> call = routeMoodServerApi.deleteImage(imageId, sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 }

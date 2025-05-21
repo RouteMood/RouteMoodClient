@@ -1,15 +1,30 @@
+# Общие правила для Java/Gradle/Android
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# Файлы IDE и системные
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.idea/
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+.local.properties
+secrets.properties
+
+# Gradle-специфичные файлы
+.gradle/
+build/
+.externalNativeBuild/
+.cxx/
+serverInteractor/build/
+
+# Android-специфичные исключения
+/captures/
