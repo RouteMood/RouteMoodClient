@@ -3,7 +3,6 @@ package ru.hse.routemood;
 import java.util.List;
 import java.util.UUID;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -85,7 +84,6 @@ public interface RouteMoodServerApi {
     @Multipart
     @POST("images/save")
     Call<ImageSaveResponse> saveImage(@Part MultipartBody.Part file,
-        @Part("mimeType") RequestBody mimeType,
         @Header("Authorization") String authHeader
     );
 
