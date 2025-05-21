@@ -53,6 +53,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
@@ -60,12 +61,22 @@ android {
 }
 
 dependencies {
+    // Permissions
+    implementation ("com.google.accompanist:accompanist-permissions:0.37.0")
     // Gson
     implementation ("com.google.code.gson:gson:2.12.1")
     //Room
     implementation("androidx.room:room-runtime:2.7.0")
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.espresso.core)
     ksp("androidx.room:room-compiler:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
+
+    // video 1xBet player
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
+
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
@@ -76,7 +87,7 @@ dependencies {
     // Server module
     implementation(project(":serverInteractor"))
     // Retrofit
-    // implementation(libs.retrofit)
+    implementation(libs.retrofit)
     // Retrofit with Scalar Converter
     implementation(libs.converter.scalars)
     // Google maps
@@ -101,6 +112,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 }
 
 kapt {

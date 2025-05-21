@@ -50,9 +50,12 @@ fun ButtonWithTitlePreview() {
 @Composable
 fun GreenButton(
     onClick: () -> Unit,
-    buttonText: String
+    buttonText: String,
+    modifier: Modifier = Modifier
 ) {
-    Button(onClick = onClick,
+    Button(
+        onClick = onClick,
+        modifier = modifier,
         shape = RoundedCornerShape(15.dp),
         colors = ButtonColors(
             containerColor = LightGreen,

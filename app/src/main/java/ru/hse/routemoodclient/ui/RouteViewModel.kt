@@ -1,5 +1,8 @@
 package ru.hse.routemoodclient.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -29,6 +32,13 @@ class RouteViewModel @Inject constructor(
     val routeState: StateFlow<RouteUiState> = dataRepository.routeState
     val routesList: StateFlow<List<RouteEntity>> = dataRepository.getRouteList()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+
+    @Composable
+    fun isLoading(): Boolean {
+        val isLoading by dataRepository.isLoading.collectAsState()
+        return isLoading
+    }
 
     fun saveRoute() {
         val routeEntity: RouteEntity = routeState.value.toRouteEntity()
@@ -88,6 +98,43 @@ class RouteViewModel @Inject constructor(
             end = LatLng(latitude, longitude),
             isEndSet = true
         )
+        dataRepository.updateRouteState(updatedRouteState)
+    }
+
+    /**
+     * Set the whole coordinates for this route's state.
+     */
+    fun setRoute(coordinates : List<LatLng>) {
+        val updatedRouteState = routeState.value.copy(
+            start = coordinates.first(),
+            isStartSet = true,
+            end = coordinates.last(),
+            isEndSet = true,
+            route = coordinates
+        )
+        dataRepository.updateRouteState(updatedRouteState)
+    }
+
+    fun getServerRoute(routeEntity: PublishedRoute) {
+        val updatedRouteState : RouteUiState
+        if (routeEntity.route.isEmpty()) {
+            updatedRouteState = routeState.value.copy(
+                name = routeEntity.name,
+                routeRequest = routeEntity.description,
+                route = routeEntity.route
+            )
+        } else {
+            updatedRouteState = routeState.value.copy(
+                start = routeEntity.route.first(),
+                isStartSet = true,
+                end = routeEntity.route.last(),
+                isEndSet = true,
+                name = routeEntity.name,
+                routeRequest = routeEntity.description,
+                route = routeEntity.route
+            )
+        }
+
         dataRepository.updateRouteState(updatedRouteState)
     }
 

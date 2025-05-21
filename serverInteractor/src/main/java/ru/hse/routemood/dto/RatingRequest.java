@@ -21,4 +21,3 @@ public class RatingRequest {
     public String authorUsername;
     public Route route;
 }
-

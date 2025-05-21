@@ -115,8 +115,7 @@ public class TestMain {
 
     @Test
     public void saveAndThenDeleteImage() throws Exception {
-        File file = new File(
-            storagePath + "test/images/test.jpg");
+        File file = new File(storagePath + "test/images/test.jpg");
 
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
 
