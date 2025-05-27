@@ -24,6 +24,7 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
+import ru.hse.routemood.dto.UserResponse;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -108,6 +109,17 @@ public class Controller {
 
     public void listUsers(ApiCallback<List<User>> callback) {
         Call<List<User>> call = routeMoodServerApi.listUsers(sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void getUserInfo(String username, ApiCallback<UserResponse> callback) {
+        Call<UserResponse> call = routeMoodServerApi.getUserInfo(username,
+            sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void updateAvatar(MultipartBody.Part file, ApiCallback<UUID> callback) {
+        Call<UUID> call = routeMoodServerApi.updateAvatar(file, sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 

@@ -24,6 +24,7 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
+import ru.hse.routemood.dto.UserResponse;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.Route.RouteItem;
 import ru.hse.routemood.models.User;
@@ -32,7 +33,7 @@ public class TestMain {
 
     private final String storagePath = "/tmp/routemood/"; // TODO load path from application.yaml
     Controller controller = new Controller();
-    private UUID lastSavedImageId;
+    private UUID lastSavedImageId = UUID.fromString("392e28db-c2cb-487d-b13b-8e2fc1c4f404");
 
     @Test
     public void registerAndLogin() {
@@ -113,26 +114,20 @@ public class TestMain {
             (TestApiCallback<RatingResponse>) System.out::println));
     }
 
-    @Test
-    public void saveAndThenDeleteImage() throws Exception {
-        File file = new File(storagePath + "test/images/test.jpg");
+    private MultipartBody.Part createFilePart() {
+        File file = new File(
+            storagePath + "test/images/test.jpg");
 
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
 
-        MultipartBody.Part filePart = MultipartBody.Part.createFormData(
-            "file",
-            file.getName(),
-            requestFile
-        );
+        return MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+    }
 
-        RequestBody mimeTypeBody = RequestBody.create(
-            MediaType.parse("text/plain"),
-            "image/jpeg"
-        );
-
+    @Test
+    public void saveAndThenDeleteImage() throws Exception {
         loginDefaultTestUserAndRunOnSuccess(authResponse ->
             controller.saveImage(
-                filePart,
+                createFilePart(),
                 (TestApiCallback<ImageSaveResponse>) response -> {
                     lastSavedImageId = response.getId();
                     System.out.println(response);
@@ -163,6 +158,27 @@ public class TestMain {
                     }
                 }
             )
+        );
+    }
+
+    @Test
+    public void getUserInfo() throws InterruptedException {
+        loginDefaultTestUserAndRunOnSuccess(authResponse ->
+            controller.getUserInfo(
+                "testUser",
+                (TestApiCallback<UserResponse>) System.out::println
+            )
+        );
+    }
+
+    @Test
+    public void updateAvatar() throws InterruptedException {
+        loginDefaultTestUserAndRunOnSuccess(
+            authResponse ->
+                controller.updateAvatar(
+                    createFilePart(),
+                    (TestApiCallback<UUID>) System.out::println
+                )
         );
     }
 

@@ -12,6 +12,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
@@ -22,6 +23,7 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
+import ru.hse.routemood.dto.UserResponse;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -51,8 +53,17 @@ public interface RouteMoodServerApi {
     @POST("/api/login")
     Call<AuthResponse> loginUser(@Body AuthRequest request);
 
-    @GET("/api/users")
+    @GET("/user/list")
     Call<List<User>> listUsers(@Header("Authorization") String authHeader);
+
+    @GET("/user/getInfo/{username}")
+    Call<UserResponse> getUserInfo(@Path("username") String username,
+        @Header("Authorization") String authHeader);
+
+    @Multipart
+    @POST("/user/update-avatar")
+    Call<UUID> updateAvatar(@Part MultipartBody.Part file,
+        @Header("Authorization") String authHeader);
 
     @POST("/rating/save")
     Call<RatingResponse> saveRoute(@Body RatingRequest request,
