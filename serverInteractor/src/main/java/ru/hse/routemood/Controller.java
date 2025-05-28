@@ -7,13 +7,14 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.UUID;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.Retrofit.Builder;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.hse.routemood.adapters.ByteArrayTypeAdapter;
+import ru.hse.routemood.adapters.DoubleTypeAdapter;
 import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
 import ru.hse.routemood.dto.GptRequest;
@@ -23,6 +24,7 @@ import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
 import ru.hse.routemood.dto.RegisterRequest;
+import ru.hse.routemood.dto.UserResponse;
 import ru.hse.routemood.models.Route;
 import ru.hse.routemood.models.User;
 
@@ -36,6 +38,7 @@ public class Controller {
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
             .registerTypeAdapter(double.class, new DoubleTypeAdapter())
+            .registerTypeAdapter(byte[].class, new ByteArrayTypeAdapter())
             .create();
 
         Retrofit retrofit = new Builder()
@@ -109,6 +112,17 @@ public class Controller {
         call.enqueue(createDefaulteCallback(callback));
     }
 
+    public void getUserInfo(String username, ApiCallback<UserResponse> callback) {
+        Call<UserResponse> call = routeMoodServerApi.getUserInfo(username,
+            sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void updateAvatar(MultipartBody.Part file, ApiCallback<UUID> callback) {
+        Call<UUID> call = routeMoodServerApi.updateAvatar(file, sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
     public void saveRoute(RatingRequest request, ApiCallback<RatingResponse> callback) {
         Call<RatingResponse> call = routeMoodServerApi.saveRoute(request,
             sessionManager.getToken());
@@ -148,9 +162,8 @@ public class Controller {
         call.enqueue(createDefaulteCallback(callback));
     }
 
-    public void saveImage(MultipartBody.Part file, RequestBody mimeType,
-        ApiCallback<ImageSaveResponse> callback) {
-        Call<ImageSaveResponse> call = routeMoodServerApi.saveImage(file, mimeType,
+    public void saveImage(MultipartBody.Part file, ApiCallback<ImageSaveResponse> callback) {
+        Call<ImageSaveResponse> call = routeMoodServerApi.saveImage(file,
             sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }

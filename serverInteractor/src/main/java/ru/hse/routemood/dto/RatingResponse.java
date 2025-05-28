@@ -23,4 +23,5 @@ public class RatingResponse {
     public double rating;
     public String authorUsername;
     public Route route;
+    public Integer rate;
 }
