@@ -20,6 +20,7 @@ import ru.hse.routemood.dto.AuthRequest;
 import ru.hse.routemood.dto.AuthResponse;
 import ru.hse.routemood.dto.ImageLoadResponse;
 import ru.hse.routemood.dto.ImageSaveResponse;
+import ru.hse.routemood.dto.PageResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
@@ -112,6 +113,22 @@ public class TestMain {
         loginDefaultTestUserAndRunOnSuccess(authResponse -> controller.getRatedRouteById(
             UUID.fromString("c79e7a3b-ad6b-4f9e-bd17-edf8b7e56aae"),
             (TestApiCallback<RatingResponse>) System.out::println));
+    }
+
+    @Test
+    public void paginationTest() throws InterruptedException {
+        loginDefaultTestUserAndRunOnSuccess(authResponse -> {
+            controller.getFirstPage(
+                (TestApiCallback<PageResponse>) response -> {
+                    System.out.println("First page:");
+                    System.out.println(response.getItems());
+                    controller.getNextPage(response.getNextPageToken(),
+                        (TestApiCallback<PageResponse>) nextPageResponse ->
+                            System.out.println("Second page:\n" + nextPageResponse.getItems())
+                    );
+                }
+            );
+        });
     }
 
     private MultipartBody.Part createFilePart() {

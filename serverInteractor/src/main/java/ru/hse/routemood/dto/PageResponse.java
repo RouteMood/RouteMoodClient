@@ -1,6 +1,6 @@
 package ru.hse.routemood.dto;
 
-import java.util.UUID;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RateRequest {
+public class PageResponse {
 
-    public UUID id;
-    public String username;
-    public int rate;
+    public List<RatingResponse> items;
+    public String nextPageToken;
 }
-
