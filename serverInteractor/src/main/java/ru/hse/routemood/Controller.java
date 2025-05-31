@@ -20,6 +20,7 @@ import ru.hse.routemood.dto.AuthResponse;
 import ru.hse.routemood.dto.GptRequest;
 import ru.hse.routemood.dto.ImageLoadResponse;
 import ru.hse.routemood.dto.ImageSaveResponse;
+import ru.hse.routemood.dto.PageResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
@@ -154,6 +155,17 @@ public class Controller {
         ApiCallback<List<RatingResponse>> callback) {
         Call<List<RatingResponse>> call = routeMoodServerApi.getListRatedRoutesByAuthorUsername(
             authorUsername, sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void getFirstPage(ApiCallback<PageResponse> callback) {
+        Call<PageResponse> call = routeMoodServerApi.getFirstPage(sessionManager.getToken());
+        call.enqueue(createDefaulteCallback(callback));
+    }
+
+    public void getNextPage(String nextPageToken, ApiCallback<PageResponse> callback) {
+        Call<PageResponse> call = routeMoodServerApi.getNextPage(nextPageToken,
+            sessionManager.getToken());
         call.enqueue(createDefaulteCallback(callback));
     }
 

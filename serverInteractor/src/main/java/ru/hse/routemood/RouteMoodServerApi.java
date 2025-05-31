@@ -19,6 +19,7 @@ import ru.hse.routemood.dto.AuthResponse;
 import ru.hse.routemood.dto.GptRequest;
 import ru.hse.routemood.dto.ImageLoadResponse;
 import ru.hse.routemood.dto.ImageSaveResponse;
+import ru.hse.routemood.dto.PageResponse;
 import ru.hse.routemood.dto.RateRequest;
 import ru.hse.routemood.dto.RatingRequest;
 import ru.hse.routemood.dto.RatingResponse;
@@ -87,6 +88,13 @@ public interface RouteMoodServerApi {
     @GET("/rating/get-by-author")
     Call<List<RatingResponse>> getListRatedRoutesByAuthorUsername(
         @Query("author") String authorUsername,
+        @Header("Authorization") String authHeader);
+
+    @GET("/rating/first-page")
+    Call<PageResponse> getFirstPage(@Header("Authorization") String authHeader);
+
+    @GET("/rating/next-page")
+    Call<PageResponse> getNextPage(@Query("nextPageToken") String nextPageToken,
         @Header("Authorization") String authHeader);
 
     @GET("/rating/get-all")
