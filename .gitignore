@@ -11,6 +11,7 @@
 *.rar
 hs_err_pid*
 replay_pid*
+!gradle/wrapper/gradle-wrapper.jar
 
 # Файлы IDE и системные
 *.iml
