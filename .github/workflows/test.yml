@@ -30,4 +30,15 @@ jobs:
         run: ./gradlew :serverInteractor:testClasses
 
       - name: Run Tests
-        run: ./gradlew :serverInteractor:test --tests "ru.hse.routemood.ControllerTest"
+        run: |
+          ./gradlew :serverInteractor:test --tests "ru.hse.routemood.ControllerTest" --info --console=plain
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.logging.level=info"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: serverInteractor/build/reports/tests/test/
+          retention-days: 7
