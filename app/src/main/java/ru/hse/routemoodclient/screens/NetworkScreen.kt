@@ -1,11 +1,9 @@
 package ru.hse.routemoodclient.screens
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,67 +17,62 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import ru.hse.routemoodclient.R
-import ru.hse.routemoodclient.data.RouteEntity
+import ru.hse.routemoodclient.profile.ProfileImagePainter
 import ru.hse.routemoodclient.ui.PublishedRoute
 import ru.hse.routemoodclient.ui.RouteViewModel
 import ru.hse.routemoodclient.ui.ServerViewModel
-import ru.hse.routemoodclient.ui.theme.LightGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetworkScreen(
     routeViewModel: RouteViewModel,
-    serverViewModel: ServerViewModel
+    serverViewModel: ServerViewModel,
+    toRoutePreview: () -> Unit,
 ) {
     val globalRoutes by serverViewModel.networkRoutesState.collectAsState()
+    val userState by serverViewModel.userState.collectAsState()
+
 
     val state = rememberPullToRefreshState()
     PullToRefreshBox(
         state = state,
         isRefreshing = serverViewModel.isRefreshing,
         onRefresh = {
-            serverViewModel.askListRoutes()
+            serverViewModel.askNextPageRoutes()
+            // serverViewModel.askListRoutes()
         }
     ) {
         LazyColumn(
@@ -99,12 +92,12 @@ fun NetworkScreen(
             item {
                 Spacer(modifier = Modifier.height(35.dp))
             }
-            itemsIndexed(globalRoutes) { id, route ->
+            itemsIndexed(globalRoutes) { _, route ->
                 RouteCard(
-                    index = id,
                     routeEntity = route,
                     routeViewModel = routeViewModel,
                     serverViewModel = serverViewModel,
+                    toRoutePreview = toRoutePreview,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                 )
@@ -114,15 +107,17 @@ fun NetworkScreen(
             }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RouteCard(
-    index: Int,
     routeEntity: PublishedRoute,
     routeViewModel: RouteViewModel,
     serverViewModel: ServerViewModel,
+    toRoutePreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -131,7 +126,12 @@ fun RouteCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                serverViewModel.setPreviewRoute(routeEntity.route)
+                toRoutePreview()
+            }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -142,17 +142,16 @@ fun RouteCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(60.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primaryContainer,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "${index + 1}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    ProfileImagePainter(
+                        routeEntity.profileId,
+                        serverViewModel
                     )
                 }
 
@@ -190,11 +189,13 @@ fun RouteCard(
 
             RatingBar(
                 globalRating = routeEntity.rating,
+                userRate = routeEntity.userRating,
                 onRatingChanged = { newRating ->
                     serverViewModel.askAddRate(
                         routeId = routeEntity.id,
                         rating = newRating
                     )
+                    serverViewModel.askListRoutes()
                 },
                 modifier = Modifier.padding(vertical = 4.dp)
             )
@@ -214,12 +215,11 @@ fun RouteCard(
 @Composable
 fun RatingBar(
     globalRating: Double,
-    maxRating: Int = 5,
+    userRate: Int,
     onRatingChanged: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxRating: Int = 5
 ) {
-    var userRating by remember { mutableIntStateOf(0) }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -227,7 +227,7 @@ fun RatingBar(
         for (i in 1..maxRating) {
             val starColor by animateColorAsState(
                 when {
-                    i <= userRating -> MaterialTheme.colorScheme.primary
+                    i <= userRate -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.outline
                 },
                 label = "starColor"
@@ -235,7 +235,6 @@ fun RatingBar(
 
             IconButton(
                 onClick = {
-                    userRating = i
                     onRatingChanged(i)
                 },
                 modifier = Modifier.size(32.dp),
@@ -269,99 +268,3 @@ fun RatingBar(
     }
 }
 
-/*
-@Composable
-fun RouteCard(
-    index: Int,
-    routeEntity: PublishedRoute,
-    serverViewModel: ServerViewModel
-) {
-    Card(
-        shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = LightGreen,
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(10.dp)
-        ) {
-            Spacer(Modifier.width(10.dp))
-            Column(modifier = Modifier.weight(5f)) {
-                Text(
-                    text = "${routeEntity.name}:",
-                    fontSize = 18.sp
-                )
-                RatingBar(
-                    globalRating = routeEntity.rating,
-                    onRatingChanged = { newRating ->
-                        serverViewModel.askAddRate(
-                            routeId = routeEntity.id,
-                            rating = newRating
-                        )
-                    }
-                )
-                Text(
-                    text = routeEntity.description,
-                    fontSize = 20.sp
-                )
-            }
-            IconButton(
-                onClick = {
-
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "save icon",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun RatingBar(
-    globalRating: Double,
-    maxRating: Int = 5,
-    onRatingChanged: (Int) -> Unit
-) {
-    var userRating by remember { mutableIntStateOf(0) }
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        for (i in 1..maxRating) {
-            IconButton(
-                onClick = {
-                    onRatingChanged(i)
-                    userRating = i
-                },
-                modifier = Modifier.size(25.dp)
-            ) {
-                if (i <= userRating) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "filled star",
-                        modifier = Modifier.size(25.dp),
-                        tint = Color.Yellow
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "filled star",
-                        modifier = Modifier.size(25.dp),
-                        tint = Color.Gray
-                    )
-                }
-            }
-        }
-        Text(
-            text = "Total: ${globalRating}",
-            fontSize = 20.sp
-        )
-    }
-}
-*/

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">RouteMoodClient</string>
     <string name="map_screen">MapScreen</string>
+    <string name="net_route_screen">NetRouteScreen</string>
     <string name="network_screen">NetworkScreen</string>
     <string name="routes_list_screen">RoutesListScreen</string>
     <string name="user_settings_screen">UserSettingsScreen</string>
