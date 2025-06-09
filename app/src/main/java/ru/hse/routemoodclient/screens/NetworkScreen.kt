@@ -71,7 +71,7 @@ fun NetworkScreen(
         state = state,
         isRefreshing = serverViewModel.isRefreshing,
         onRefresh = {
-            serverViewModel.askNextPageRoutes()
+            serverViewModel.askFirstPageRoutes()
             // serverViewModel.askListRoutes()
         }
     ) {
@@ -101,6 +101,15 @@ fun NetworkScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                 )
+            }
+            item {
+                Button(
+                    onClick = {
+                        serverViewModel.askNextPageRoutes()
+                    }
+                ) {
+                    Text("Load next")
+                }
             }
             item {
                 Spacer(modifier = Modifier.height(80.dp))
@@ -195,7 +204,6 @@ fun RouteCard(
                         routeId = routeEntity.id,
                         rating = newRating
                     )
-                    serverViewModel.askListRoutes()
                 },
                 modifier = Modifier.padding(vertical = 4.dp)
             )

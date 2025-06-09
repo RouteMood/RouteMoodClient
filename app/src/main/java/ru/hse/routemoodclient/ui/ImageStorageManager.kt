@@ -32,7 +32,7 @@ class ImageManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     companion object {
-        private const val IMAGE_DIR = "user_images"
+        const val IMAGE_DIR = "user_images"
     }
 
     private val imageDir by lazy {
@@ -41,7 +41,7 @@ class ImageManager @Inject constructor(
         }
     }
 
-    private fun uuidKey(uuid: UUID) = stringPreferencesKey("image_${uuid}")
+    fun uuidKey(uuid: UUID) = stringPreferencesKey("image_${uuid}")
 
     // Добавление/обновление пары UUID -> Uri и сохранение файла
     suspend fun addUuidUriPair(uuid: UUID, uri: Uri): File {

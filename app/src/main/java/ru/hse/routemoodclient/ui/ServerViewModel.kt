@@ -640,7 +640,7 @@ class ServerViewModel @Inject constructor(
     fun askAddRate(routeId: UUID, rating: Int) {
         val addRateResponse = object : ApiCallback<RatingResponse?> {
             override fun onSuccess(result: RatingResponse?) {
-                // TODO
+                askListRoutes()
             }
             override fun onError(error: String) {
                 System.err.println(error)
@@ -884,6 +884,56 @@ class ServerViewModel @Inject constructor(
         isRefreshing = false
     }
 
+    fun askFirstPageRoutes() {
+        isRefreshing = true
+        val routePageResponse = object : ApiCallback<PageResponse> {
+            override fun onSuccess(result: PageResponse?) {
+                if (result != null) {
+                    pageToken = result.nextPageToken
+                    _networkRoutesState.value = result.items.map { route ->
+                        PublishedRoute(
+                            id = route.id,
+                            name = route.name?: "No name",
+                            description = route.description?: "No description",
+                            rating = route.rating,
+                            userRating = route.rate?: 0,
+                            profileId = route.author.avatarId,
+                            authorUsername = route.author.username?: "Unknown",
+                            route = latlngList(route.route)
+                        )
+                    }
+                }
+                isRefreshing = false
+            }
+            override fun onError(error: String) {
+                isRefreshing = false
+                System.err.println(error)
+            }
+        }
+        val updateResponse = object : ApiCallback<AuthResponse?> {
+            override fun onSuccess(result: AuthResponse?) {
+                try {
+                    controller.getFirstPage(routePageResponse)
+                } catch (ex: Exception) {
+                    // TODO
+                }
+            }
+            override fun onError(error: String) {
+                System.err.println(error)
+                isRefreshing = false
+            }
+        }
+
+        try {
+            controller.loginUser(
+                AuthRequest(userState.value.username, userState.value.password),
+                updateResponse
+            )
+        } catch (ex: Exception) {
+            // TODO
+        }
+    }
+
     /**
      * Ask update on rating route list
      */
@@ -905,9 +955,7 @@ class ServerViewModel @Inject constructor(
         val updateResponse = object : ApiCallback<AuthResponse?> {
             override fun onSuccess(result: AuthResponse?) {
                 try {
-                    if (pageToken == null) {
-                        controller.getFirstPage(routePageResponse)
-                    } else {
+                    if (pageToken != null) {
                         controller.getNextPage(pageToken, routePageResponse)
                     }
                 } catch (ex: Exception) {
@@ -934,12 +982,9 @@ class ServerViewModel @Inject constructor(
      * Returns a list of [LatLng] from [route]
      */
     private fun latlngList(route: Route?): List<LatLng> {
-        val convertedList = mutableListOf<LatLng>()
-        if (route != null) {
-            for (rt in route.route) {
-                convertedList.add(LatLng(rt.latitude, rt.longitude))
-            }
-        }
-        return convertedList.toList()
+        return route?.route
+            ?.filterIndexed { index, _ -> index % 2 == 0 }
+            ?.map { rt -> LatLng(rt.latitude, rt.longitude) }
+            ?: emptyList()
     }
 }
