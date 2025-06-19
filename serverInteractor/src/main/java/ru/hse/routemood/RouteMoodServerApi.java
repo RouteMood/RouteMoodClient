@@ -30,7 +30,7 @@ import ru.hse.routemood.models.User;
 
 public interface RouteMoodServerApi {
 
-    String BASE_URL = "http://localhost:8080/";
+    String BASE_URL = "http://158.160.135.170:8080/";
 
     @GET("/gpt-fictive-message")
     Call<Route> getFictiveRoute(@Query("latitude") Double latitude,

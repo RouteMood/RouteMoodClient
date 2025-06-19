@@ -35,7 +35,15 @@ public class Controller {
     private final SessionManager sessionManager;
 
     public Controller() {
-        sessionManager = SessionManager.getInstance();
+        this(createDefaultApi(), SessionManager.getInstance());
+    }
+
+    Controller(RouteMoodServerApi api, SessionManager manager) {
+        this.routeMoodServerApi = api;
+        this.sessionManager = manager;
+    }
+
+    private static RouteMoodServerApi createDefaultApi() {
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
             .registerTypeAdapter(double.class, new DoubleTypeAdapter())
@@ -47,7 +55,7 @@ public class Controller {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build();
 
-        this.routeMoodServerApi = retrofit.create(RouteMoodServerApi.class);
+        return retrofit.create(RouteMoodServerApi.class);
     }
 
     private <T> Callback<T> createDefaulteCallback(ApiCallback<T> callback) {
