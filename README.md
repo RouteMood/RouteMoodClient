@@ -55,5 +55,7 @@ MAPS_API_KEY=your_google_maps_key
 
 # Ключ для Google Directions API
 MAPS_SERVER_API_KEY=your_directions_api_key
-
+```
+# Лицензия
+MIT License. Подробнее см. в файле LICENSE.
     
