@@ -25,11 +25,11 @@ Android-приложение для создания и оценки пеших 
 ## Скриншоты
 | Экран входа | Настройки маршрута | Профиль |
 |-------------|-------------------|---------|
-| <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlJA98inIg-p0bALx3hnMtseZycTqESwTe19UxnT3E5CcTRmhFByGkhUTPomM6_88u4DR9jRnILGqMBoz_zffRIxfAAnnfXDWUScESXFuFWTwvqryt0a2w=s512" width="200"/> | <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlJ2faS1d_ZddRJVyVnSi3VGY6D8VUs0ihYITypEzlqNadjjpBb-m5InXKUCrSA3QgOVORx7AxlBUReIz58slAiFhJbQdnogRMKje4AbFs3VpNzoKo4HYA=s512" width="200"/> | <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlJZTP4eEkB0q54aYoqXXhnECQNg13jOFbQUXurAFGny4pu4eLhAyb_M4Odwh19Eq-cbEruzpcrWJ40w8WGJrjzUFE1i3vlMYHGCVOvJBXlzoEBzm65J7Q=s2048" width="200"/> |
+| <img src="screenshots/login.png" width="200"/> | <img src="screenshots/routeSettings.png" width="200"/> | <img src="screenshots/profileSheet.png" width="200"/> |
 
-| Создание маршрута | Просмотр маршрута | Рейтинг |
+| Создание маршрута | Опубликованные маршруты | Рейтинг |
 |-------------------|------------------|---------|
-| <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlJ6UJmdXGHydamiZOtDx3PBRpNFhWjUCzfVlzzqKVBTwErKGWexXw6xcsKduLjKKvmDxPPsdd6U-gXjrZpHXuFinB3ShsWyHu05tmqrdlH1ytYvLYBqaw=s2048" width="200"/> | <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlLYzn_xD2CaDe-BVTJl-r0i3P6VOoxD6nmnRcnv1atkMh0UJV-0XH_nbR8KglvcULRoRs1C8LY5QqMDeIJ5MRypJHKQwDQHgtLBwYsijMvR1YEoudVO-Q=s2048" width="200"/> | <img src="https://lh3.googleusercontent.com/keep-bbsk/AFgXFlLvJvKL5XjkivkClluPaswBUxt-mSmh18i88gx826dR_Q7vIBa8KIMo7eXptc0rZ6Ad5Dm14QNTR-OOcNsm3nA15fwZfDpJplb4Ehcm92igzWRGWcK5RQ=s2048" width="200"/> |
+| <img src="screenshots/builtRoute.png" width="200"/> | <img src="screenshots/publishRoute.png" width="200"/> | <img src="screenshots/network.png" width="200"/> |
 
 ## Технологии
 - Язык: Kotlin, Jetpack Compose
