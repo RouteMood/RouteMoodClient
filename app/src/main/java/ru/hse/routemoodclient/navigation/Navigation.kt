@@ -1,18 +1,13 @@
 package ru.hse.routemoodclient.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -23,6 +18,7 @@ import com.google.android.gms.maps.model.LatLng
 import ru.hse.routemoodclient.R
 import ru.hse.routemoodclient.map.CreateUserRoute
 import ru.hse.routemoodclient.map.ShowMap
+import ru.hse.routemoodclient.map.ShowNetRoute
 import ru.hse.routemoodclient.profile.ProfileSheet
 import ru.hse.routemoodclient.profile.PublishedRoutesScreen
 import ru.hse.routemoodclient.profile.RoutesListScreen
@@ -46,6 +42,10 @@ enum class RouteMoodScreen(@StringRes val title: Int, val color: Color) {
     ),
     Map(
         title = R.string.map_screen,
+        color = LightGreen
+    ),
+    ShowNetRoute(
+        title = R.string.net_route_screen,
         color = LightGreen
     ),
     SetStart(
@@ -170,8 +170,8 @@ fun RouteMoodApp(
                         navController.navigate(RouteMoodScreen.SetUserRoute.name)
                     },
                     onGenerateButtonClicked = {
-                        //serverViewModel.askRoute()
-                        serverViewModel.askFictiveRoute()
+                        serverViewModel.askRoute()
+                        //serverViewModel.askFictiveRoute()
                         navController.navigate(RouteMoodScreen.LoadingScreen.name)
                     },
                     onDiscardButtonClicked = {
@@ -182,7 +182,10 @@ fun RouteMoodApp(
             composable(route = RouteMoodScreen.Network.name) {
                 NetworkScreen(
                     routeViewModel = routeViewModel,
-                    serverViewModel = serverViewModel
+                    serverViewModel = serverViewModel,
+                    toRoutePreview = {
+                        navController.navigate(RouteMoodScreen.ShowNetRoute.name)
+                    }
                 )
             }
             composable(route = RouteMoodScreen.Map.name) {
@@ -190,6 +193,10 @@ fun RouteMoodApp(
                     viewModel = serverViewModel,
                     onMapClick = {}
                 )
+            }
+            composable(route = RouteMoodScreen.ShowNetRoute.name) {
+                val route = serverViewModel.previewRoute.collectAsState()
+                ShowNetRoute(route.value)
             }
             composable(route = RouteMoodScreen.SetStart.name) {
                 ShowMap(

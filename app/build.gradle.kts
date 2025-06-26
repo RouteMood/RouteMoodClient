@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         applicationId = "ru.hse.routemoodclient"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -61,6 +61,19 @@ android {
 }
 
 dependencies {
+    // Test
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.room:room-testing:2.6.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    // Glide
+    implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
     // Permissions
     implementation ("com.google.accompanist:accompanist-permissions:0.37.0")
     // Gson
